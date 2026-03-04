@@ -1,0 +1,382 @@
+/* HeroSection Styles */
+
+.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-top: 100px;
+}
+
+/* Animated glow orbs */
+.hero-glow {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(100px);
+    z-index: 0;
+}
+
+.hero-glow-1 {
+    width: 650px;
+    height: 650px;
+    top: -150px;
+    right: -120px;
+    background: radial-gradient(circle, rgba(0, 201, 177, 0.14) 0%, transparent 70%);
+    animation: pulse 7s ease-in-out infinite alternate;
+}
+
+.hero-glow-2 {
+    width: 500px;
+    height: 500px;
+    bottom: 80px;
+    left: -180px;
+    background: radial-gradient(circle, rgba(15, 43, 91, 0.3) 0%, transparent 70%);
+    animation: pulse 9s ease-in-out infinite alternate-reverse;
+}
+
+.hero-glow-3 {
+    width: 300px;
+    height: 300px;
+    bottom: 30%;
+    right: 25%;
+    background: radial-gradient(circle, rgba(0, 201, 177, 0.07) 0%, transparent 70%);
+    animation: pulse 5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    from {
+        opacity: 0.7;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1.15);
+    }
+}
+
+/* Canvas container */
+.particles-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Main grid */
+.hero-container {
+    position: relative;
+    z-index: 2;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 4rem 2rem 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 2rem;
+    flex: 1;
+}
+
+/* ---- LEFT CONTENT ---- */
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    animation: fadeInDown 0.8s ease both;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 201, 177, 0.08);
+    border: 1px solid rgba(0, 201, 177, 0.22);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #00C9B1;
+    letter-spacing: 0.04em;
+    width: fit-content;
+}
+
+.badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00C9B1;
+    box-shadow: 0 0 8px #00C9B1;
+    animation: blink 2.2s ease-in-out infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.25;
+    }
+}
+
+.hero-heading {
+    font-size: clamp(2.4rem, 4vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+    color: #E8E8F0;
+}
+
+.hero-highlight {
+    background: linear-gradient(90deg, #00C9B1 0%, #2DECD4 60%, #00A891 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-heading strong {
+    color: #E8E8F0;
+    -webkit-text-fill-color: #E8E8F0;
+}
+
+.hero-subtext {
+    font-size: 1.05rem;
+    color: #8888AA;
+    line-height: 1.75;
+}
+
+/* Buttons */
+.hero-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.78rem 1.8rem;
+    background: linear-gradient(135deg, #00C9B1 0%, #009E8E 100%);
+    color: #08090F;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0, 201, 177, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 201, 177, 0.45);
+}
+
+.btn-primary:hover::before {
+    opacity: 1;
+}
+
+.btn-primary svg {
+    transition: transform 0.3s ease;
+}
+
+.btn-primary:hover svg {
+    transform: translateX(4px);
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.78rem 1.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: #E8E8F0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    backdrop-filter: blur(8px);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.22);
+    transform: translateY(-2px);
+}
+
+.hero-trust-small {
+    font-size: 0.9rem;
+    color: #8888AA;
+}
+
+.trust-number {
+    color: #00C9B1;
+    font-weight: 700;
+}
+
+/* ---- RIGHT VISUAL ---- */
+.hero-visual {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeInRight 0.9s 0.25s ease both;
+}
+
+/* ---- SPLINE 3D SCENE ---- */
+.spline-wrapper {
+    width: 100%;
+    height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+.spline-wrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+
+/* ---- TRUST BAR ---- */
+.trust-bar {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.trust-bar-label {
+    font-size: 0.92rem;
+    color: #8888AA;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.trust-logos {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.trust-logo {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #8888AA;
+    font-size: 0.9rem;
+    font-weight: 600;
+    opacity: 0.65;
+    transition: opacity 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    cursor: default;
+}
+
+.trust-logo:hover {
+    opacity: 1;
+    color: #E8E8F0;
+    transform: translateY(-2px);
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-22px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(44px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 1024px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 3rem 1.5rem 2rem;
+    }
+
+    .hero-badge {
+        margin: 0 auto;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .hero-trust-small {
+        text-align: center;
+    }
+
+    .hero-visual {
+        animation: fadeInDown 0.9s 0.3s ease both;
+    }
+
+    .spline-wrapper {
+        height: 380px;
+    }
+}
+
+@media (max-width: 640px) {
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .spline-wrapper {
+        height: 280px;
+    }
+
+    .trust-logo span {
+        display: none;
+    }
+
+    .trust-logos {
+        gap: 1.5rem;
+    }
+}
