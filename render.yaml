@@ -1,6 +1,18 @@
 services:
+  # React Frontend (Served as Web Service to avoid Blueprint issues)
   - type: web
-    name: primecode
-    runtime: static
-    buildCommand: npm run build
-    publishPath: dist
+    name: primecode-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s dist -l $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: primecode-db
+          property: connectionString
+
+databases:
+  - name: primecode-db
+    plan: free
+    databaseName: primecode
+    user: admin
