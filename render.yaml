@@ -1,12 +1,13 @@
 services:
-  # React Frontend (Served as Web Service to avoid Blueprint issues)
+  # React Frontend (Served as Web Service on Render's Free Plan)
   - type: web
     name: primecode-frontend
+    plan: free # Explicitly using the free instance
     env: node
     buildCommand: npm install && npm run build
     startCommand: npx serve -s dist -l $PORT
     envVars:
       - key: TURSO_DATABASE_URL
-        sync: false # User will provide this in Render Dashboard
+        sync: false
       - key: TURSO_AUTH_TOKEN
-        sync: false # User will provide this in Render Dashboard
+        sync: false
