@@ -1,6 +1,6 @@
 services:
   - type: web
     name: primecode
-    env: static
+    runtime: static
     buildCommand: npm run build
     publishPath: dist
