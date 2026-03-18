@@ -2107,13 +2107,24 @@ canvas~a {
   letter-spacing: 0.5px;
 }
 
-.hamburger-btn {
+.dashboard-header .hamburger-btn {
   display: none;
   background: none;
   border: none;
   color: #fff;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.dashboard-header .hamburger-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .profile-dropdown-trigger {
@@ -2190,7 +2201,7 @@ canvas~a {
     backdrop-filter: blur(4px);
   }
 
-  .hamburger-btn {
+  .dashboard-header .hamburger-btn {
     display: flex;
   }
 
