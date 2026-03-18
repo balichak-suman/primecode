@@ -48,16 +48,20 @@ const upload = multer({
 // ─────────────────────────────────────────────
 import axios from 'axios';
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const SENDER_EMAIL = 'prime.code@yahoo.com';
-const HR_EMAIL = process.env.HR_EMAIL || 'prime.code@yahoo.com';
+const SENDER_EMAIL = process.env.SENDER_EMAIL || 'prime.code@yahoo.com';
+const HR_EMAILS = [
+  'prime.code@yahoo.com',
+  'balichaksumann@gmail.com'
+];
 
 const sendBrevoEmail = async (to, subject, htmlContent) => {
   try {
+    const toArray = Array.isArray(to) ? to.map(e => ({ email: e })) : [{ email: to }];
     await axios.post(
       'https://api.brevo.com/v3/smtp/email',
       {
         sender: { name: 'PrimeCode Careers', email: SENDER_EMAIL },
-        to: [{ email: to }],
+        to: toArray,
         subject,
         htmlContent,
       },
@@ -255,7 +259,7 @@ router.post('/apply',
 
       // Send notification to HR team
       await sendBrevoEmail(
-        HR_EMAIL,
+        HR_EMAILS,
         `New Application: ${fullName} for ${job.title}`,
         `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem">
