@@ -10,6 +10,7 @@ import ForgotPassword from './pages/ForgotPassword.jsx'
 import VerifyOTP from './pages/VerifyOTP.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import Careers from './pages/Careers.jsx'
+import JobOpenings from './pages/JobOpenings.jsx'
 import { ProtectedRoute } from './components/ProtectedRoute.jsx'
 import DashboardLayout from './components/DashboardLayout.jsx'
 
@@ -53,6 +54,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/careers" element={<Careers />} />
+          <Route path="/openings" element={<JobOpenings />} />
 
           {/* Protected Dashboard Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
