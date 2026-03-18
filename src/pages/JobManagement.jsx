@@ -17,6 +17,14 @@ export default function JobManagement() {
   const [deptFilter, setDeptFilter] = useState('');
   const [jobFilter, setJobFilter] = useState('');
 
+  const [showJobModal, setShowJobModal] = useState(false);
+  const [editingJob, setEditingJob] = useState(null);
+  const [jobForm, setJobForm] = useState({
+    title: '', department: 'Engineering', type: 'Full-time', location: '',
+    experience: '', salary: '', description: '', responsibilities: '',
+    requirements: '', niceToHave: '', perks: '', closingDate: ''
+  });
+
   const token = localStorage.getItem('token');
   const headers = { Authorization: `Bearer ${token}` };
 
@@ -45,6 +53,56 @@ export default function JobManagement() {
       await axios.put(`${API_URL}/careers/admin/jobs/${id}`, { status }, { headers });
       fetchData();
     } catch (e) { console.error(e); }
+  };
+
+  const deleteJob = async (id) => {
+    if (!window.confirm('Are you sure you want to permanently delete this job and all its applications? This cannot be undone.')) return;
+    try {
+      await axios.delete(`${API_URL}/careers/admin/jobs/${id}/hard`, { headers });
+      fetchData();
+    } catch (e) { console.error(e); alert('Failed to delete job.'); }
+  };
+
+  const openJobModal = (job = null) => {
+    if (job) {
+      setEditingJob(job);
+      setJobForm({
+        title: job.title || '', department: job.department || 'Engineering', type: job.type || 'Full-time',
+        location: job.location || '', experience: job.experience || '', salary: job.salary || '',
+        description: job.description || '', responsibilities: (job.responsibilities || []).join('\n'),
+        requirements: (job.requirements || []).join('\n'), niceToHave: (job.niceToHave || []).join('\n'),
+        perks: (job.perks || []).join('\n'), closingDate: job.closingDate ? new Date(job.closingDate).toISOString().split('T')[0] : ''
+      });
+    } else {
+      setEditingJob(null);
+      setJobForm({
+        title: '', department: 'Engineering', type: 'Full-time', location: '', experience: '', salary: '',
+        description: '', responsibilities: '', requirements: '', niceToHave: '', perks: '', closingDate: ''
+      });
+    }
+    setShowJobModal(true);
+  };
+
+  const handleSaveJob = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = { ...jobForm };
+      ['responsibilities', 'requirements', 'niceToHave', 'perks'].forEach(k => {
+        payload[k] = payload[k].split('\n').map(s => s.trim()).filter(s => s);
+      });
+      if (!payload.closingDate) delete payload.closingDate;
+
+      if (editingJob) {
+        await axios.put(`${API_URL}/careers/admin/jobs/${editingJob.id}`, payload, { headers });
+      } else {
+        await axios.post(`${API_URL}/careers/admin/jobs`, payload, { headers });
+      }
+      setShowJobModal(false);
+      fetchData();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save job posting.');
+    }
   };
 
   const updateAppStatus = async (id, status) => {
@@ -86,6 +144,11 @@ export default function JobManagement() {
       {/* ═══ JOBS TAB ═══ */}
       {tab === 'jobs' && (
         <div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+            <button onClick={() => openJobModal()} style={{ background: 'linear-gradient(135deg, #00D2FF, #00DFD8)', color: '#000', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 15px rgba(0,210,255,0.2)' }}>
+              + Create New Job
+            </button>
+          </div>
           {loading ? <div style={{ textAlign: 'center', padding: '3rem', opacity: 0.3 }}>Loading...</div> : jobs.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
               <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>💼</div>
@@ -115,7 +178,7 @@ export default function JobManagement() {
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#00D2FF' }}>{job.applicationCount}</div>
                       <div style={{ fontSize: '0.6rem', opacity: 0.4 }}>Applications</div>
-                      <div style={{ display: 'flex', gap: '4px', marginTop: '8px' }}>
+                      <div style={{ display: 'flex', gap: '4px', marginTop: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                         {job.status === 'ACTIVE' && (
                           <button onClick={() => updateJobStatus(job.id, 'PAUSED')} style={{ background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '6px', padding: '4px 8px', fontSize: '0.6rem', color: '#FFD700', cursor: 'pointer' }}>Pause</button>
                         )}
@@ -125,6 +188,8 @@ export default function JobManagement() {
                         {job.status !== 'CLOSED' && (
                           <button onClick={() => updateJobStatus(job.id, 'CLOSED')} style={{ background: 'rgba(255,51,102,0.1)', border: '1px solid rgba(255,51,102,0.2)', borderRadius: '6px', padding: '4px 8px', fontSize: '0.6rem', color: '#ff3366', cursor: 'pointer' }}>Close</button>
                         )}
+                        <button onClick={() => openJobModal(job)} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px', padding: '4px 8px', fontSize: '0.6rem', color: '#fff', cursor: 'pointer' }}>Edit</button>
+                        <button onClick={() => deleteJob(job.id)} style={{ background: 'rgba(255,0,0,0.1)', border: '1px solid rgba(255,0,0,0.3)', borderRadius: '6px', padding: '4px 8px', fontSize: '0.6rem', color: '#ff4444', cursor: 'pointer' }}>Delete</button>
                         <button onClick={() => { setTab('applications'); setJobFilter(job.id); }} style={{ background: 'rgba(0,210,255,0.1)', border: '1px solid rgba(0,210,255,0.2)', borderRadius: '6px', padding: '4px 8px', fontSize: '0.6rem', color: '#00D2FF', cursor: 'pointer' }}>View Apps</button>
                       </div>
                     </div>
@@ -245,6 +310,81 @@ export default function JobManagement() {
           )}
         </div>
       )}
+
+      {/* ═══ JOB CREATION/EDIT MODAL ═══ */}
+      {showJobModal && (
+        <div onClick={() => setShowJobModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 300, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', background: 'rgba(12,12,12,0.98)', border: '1px solid rgba(0,210,255,0.2)', borderRadius: '20px', boxShadow: '0 0 60px rgba(0,210,255,0.1)', padding: '2rem', position: 'relative' }}>
+            <button onClick={() => setShowJobModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+            <h2 style={{ marginTop: 0, color: '#00D2FF' }}>{editingJob ? 'Edit Job Posting' : 'Create Job Posting'}</h2>
+            
+            <form onSubmit={handleSaveJob} style={{ display: 'grid', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Job Title *</label>
+                  <input required value={jobForm.title} onChange={e => setJobForm({ ...jobForm, title: e.target.value })} style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Department *</label>
+                  <select required value={jobForm.department} onChange={e => setJobForm({ ...jobForm, department: e.target.value })} style={{ width: '100%', padding: '10px 14px', background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none' }}>
+                    <option>Engineering</option><option>Design</option><option>Marketing</option><option>HR</option><option>Sales</option><option>Product</option><option>Finance</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Employment Type</label>
+                  <select value={jobForm.type} onChange={e => setJobForm({ ...jobForm, type: e.target.value })} style={{ width: '100%', padding: '10px 14px', background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none' }}>
+                    <option>Full-time</option><option>Part-time</option><option>Contract</option><option>Remote</option><option>Internship</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Location</label>
+                  <input value={jobForm.location} onChange={e => setJobForm({ ...jobForm, location: e.target.value })} placeholder="e.g. Gurugram, India" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Experience</label>
+                  <input value={jobForm.experience} onChange={e => setJobForm({ ...jobForm, experience: e.target.value })} placeholder="e.g. 2-5 years" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Salary Range</label>
+                  <input value={jobForm.salary} onChange={e => setJobForm({ ...jobForm, salary: e.target.value })} placeholder="e.g. ₹12-18 LPA or Unpaid" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none' }} />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Short Description *</label>
+                <textarea required value={jobForm.description} onChange={e => setJobForm({ ...jobForm, description: e.target.value })} rows="3" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'vertical' }} />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Responsibilities (one per line)</label>
+                  <textarea value={jobForm.responsibilities} onChange={e => setJobForm({ ...jobForm, responsibilities: e.target.value })} rows="4" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'vertical' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Requirements (one per line)</label>
+                  <textarea value={jobForm.requirements} onChange={e => setJobForm({ ...jobForm, requirements: e.target.value })} rows="4" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'vertical' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Nice to Have (one per line)</label>
+                  <textarea value={jobForm.niceToHave} onChange={e => setJobForm({ ...jobForm, niceToHave: e.target.value })} rows="3" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'vertical' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Perks / Benefits (one per line)</label>
+                  <textarea value={jobForm.perks} onChange={e => setJobForm({ ...jobForm, perks: e.target.value })} rows="3" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'vertical' }} />
+                </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
+                <button type="button" onClick={() => setShowJobModal(false)} style={{ padding: '12px 24px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
+                <button type="submit" style={{ padding: '12px 24px', borderRadius: '10px', background: 'linear-gradient(135deg, #00D2FF, #00DFD8)', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 700, boxShadow: '0 4px 15px rgba(0,210,255,0.3)' }}>
+                  {editingJob ? 'Save Changes' : 'Post Job'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

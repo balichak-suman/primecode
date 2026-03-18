@@ -432,6 +432,41 @@ router.delete('/admin/jobs/:id', adminAuth, async (req, res) => {
   }
 });
 
+// DELETE /api/careers/admin/jobs/:id/hard — Hard delete (remove job and applications)
+router.delete('/admin/jobs/:id/hard', adminAuth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const existing = await prisma.jobPosting.findUnique({ where: { id } });
+    if (!existing) return res.status(404).json({ error: 'Job not found' });
+
+    // Delete associated applications first due to foreign key constraints
+    await prisma.jobApplication.deleteMany({
+      where: { jobId: id }
+    });
+
+    // Delete the job posting
+    await prisma.jobPosting.delete({
+      where: { id }
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user.id,
+        method: 'DELETE',
+        url: `/api/careers/admin/jobs/${id}/hard`,
+        ip: req.ip || 'unknown',
+        details: { action: 'hard_delete', jobTitle: existing.title }
+      }
+    });
+
+    console.log(`[CAREERS] Job #${id} and applications HARD DELETED by ${req.user.name}`);
+    res.json({ success: true, message: 'Job posting deleted permanently' });
+  } catch (error) {
+    console.error('DELETE /careers/admin/jobs/:id/hard error:', error);
+    res.status(500).json({ error: 'Failed to delete job posting' });
+  }
+});
+
 // GET /api/careers/admin/applications — All applications with filters
 router.get('/admin/applications', adminAuth, async (req, res) => {
   try {
