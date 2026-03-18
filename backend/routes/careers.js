@@ -44,19 +44,34 @@ const upload = multer({
 });
 
 // ─────────────────────────────────────────────
-// NODEMAILER TRANSPORTER
+// BREVO EMAIL SETUP
 // ─────────────────────────────────────────────
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+import axios from 'axios';
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const SENDER_EMAIL = 'prime.code@yahoo.com';
+const HR_EMAIL = process.env.HR_EMAIL || 'prime.code@yahoo.com';
 
-const HR_EMAIL = process.env.HR_EMAIL || 'hr@primecode.tech';
+const sendBrevoEmail = async (to, subject, htmlContent) => {
+  try {
+    await axios.post(
+      'https://api.brevo.com/v3/smtp/email',
+      {
+        sender: { name: 'PrimeCode Careers', email: SENDER_EMAIL },
+        to: [{ email: to }],
+        subject,
+        htmlContent,
+      },
+      {
+        headers: {
+          'api-key': BREVO_API_KEY,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  } catch (err) {
+    console.error('[CAREERS] Brevo Email Error:', err.response?.data || err.message);
+  }
+};
 
 // ─────────────────────────────────────────────
 // HELPER: validation error response
@@ -219,53 +234,47 @@ router.post('/apply',
       }
 
       // Send confirmation email to applicant (non-blocking)
-      if (process.env.SMTP_USER) {
-       await transporter.sendMail({
-          from: `"PrimeCode Careers" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
-          to: email,
-          subject: `Application Received — ${job.title} at PrimeCode`,
-          html: `
-            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0a0a;color:#fff;padding:2rem;border-radius:12px;border:1px solid rgba(0,210,255,0.2)">
-              <h2 style="color:#00D2FF;margin-top:0">Application Received ✓</h2>
-              <p>Hi <strong>${fullName}</strong>,</p>
-              <p>Thank you for applying for <strong style="color:#00D2FF">${job.title}</strong> at PrimeCode Solutions.</p>
-              <p>We have received your application and our team will review it within <strong>5–7 business days</strong>. If your profile matches our requirements, we'll reach out for next steps.</p>
-              <div style="padding:1rem;background:rgba(0,210,255,0.05);border:1px solid rgba(0,210,255,0.1);border-radius:8px;margin:1rem 0">
-                <p style="margin:0;font-size:0.9rem"><strong>Position:</strong> ${job.title}</p>
-                <p style="margin:4px 0 0;font-size:0.9rem"><strong>Department:</strong> ${job.department}</p>
-                <p style="margin:4px 0 0;font-size:0.9rem"><strong>Application ID:</strong> #${application.id}</p>
-              </div>
-              <p style="opacity:0.6;font-size:0.85rem">Best regards,<br>PrimeCode Hiring Team</p>
+      await sendBrevoEmail(
+        email,
+        `Application Received — ${job.title} at PrimeCode`,
+        `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0a0a;color:#fff;padding:2rem;border-radius:12px;border:1px solid rgba(0,210,255,0.2)">
+            <h2 style="color:#00D2FF;margin-top:0">Application Received ✓</h2>
+            <p>Hi <strong>${fullName}</strong>,</p>
+            <p>Thank you for applying for <strong style="color:#00D2FF">${job.title}</strong> at PrimeCode Solutions.</p>
+            <p>We have received your application and our team will review it within <strong>5–7 business days</strong>. If your profile matches our requirements, we'll reach out for next steps.</p>
+            <div style="padding:1rem;background:rgba(0,210,255,0.05);border:1px solid rgba(0,210,255,0.1);border-radius:8px;margin:1rem 0">
+              <p style="margin:0;font-size:0.9rem"><strong>Position:</strong> ${job.title}</p>
+              <p style="margin:4px 0 0;font-size:0.9rem"><strong>Department:</strong> ${job.department}</p>
+              <p style="margin:4px 0 0;font-size:0.9rem"><strong>Application ID:</strong> #${application.id}</p>
             </div>
-          `
-        }).catch(err => console.error('[CAREERS] Applicant email error:', err.message));
+            <p style="opacity:0.6;font-size:0.85rem">Best regards,<br>PrimeCode Hiring Team</p>
+          </div>
+        `
+      );
 
-        // Send notification to HR team
-       await transporter.sendMail({
-          from: `"PrimeCode HR Portal" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
-          to: HR_EMAIL,
-          subject: `New Application: ${fullName} for ${job.title}`,
-          html: `
-            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem">
-              <h2>📋 New Job Application</h2>
-              <table style="width:100%;border-collapse:collapse">
-                <tr><td style="padding:6px 12px;font-weight:bold;width:140px">Name</td><td>${fullName}</td></tr>
-                <tr><td style="padding:6px 12px;font-weight:bold">Email</td><td>${email}</td></tr>
-                <tr><td style="padding:6px 12px;font-weight:bold">Phone</td><td>${phone}</td></tr>
-                <tr><td style="padding:6px 12px;font-weight:bold">Position</td><td>${job.title}</td></tr>
-                <tr><td style="padding:6px 12px;font-weight:bold">Department</td><td>${job.department}</td></tr>
-                <tr><td style="padding:6px 12px;font-weight:bold">Experience</td><td>${experience}</td></tr>
-                ${currentRole ? `<tr><td style="padding:6px 12px;font-weight:bold">Current Role</td><td>${currentRole}</td></tr>` : ''}
-                ${currentCompany ? `<tr><td style="padding:6px 12px;font-weight:bold">Company</td><td>${currentCompany}</td></tr>` : ''}
-                ${linkedIn ? `<tr><td style="padding:6px 12px;font-weight:bold">LinkedIn</td><td><a href="${linkedIn}">${linkedIn}</a></td></tr>` : ''}
-              </table>
-              <p style="margin-top:1rem;font-size:0.85rem;opacity:0.6">Application #${application.id} · ${new Date().toLocaleDateString()}</p>
-            </div>
-          `
-        }).catch(err => console.error('[CAREERS] HR notification email error:', err.message));
-      } else {
-        console.warn('[CAREERS] SMTP not configured — skipping emails');
-      }
+      // Send notification to HR team
+      await sendBrevoEmail(
+        HR_EMAIL,
+        `New Application: ${fullName} for ${job.title}`,
+        `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem">
+            <h2>📋 New Job Application</h2>
+            <table style="width:100%;border-collapse:collapse">
+              <tr><td style="padding:6px 12px;font-weight:bold;width:140px">Name</td><td>${fullName}</td></tr>
+              <tr><td style="padding:6px 12px;font-weight:bold">Email</td><td>${email}</td></tr>
+              <tr><td style="padding:6px 12px;font-weight:bold">Phone</td><td>${phone}</td></tr>
+              <tr><td style="padding:6px 12px;font-weight:bold">Position</td><td>${job.title}</td></tr>
+              <tr><td style="padding:6px 12px;font-weight:bold">Department</td><td>${job.department}</td></tr>
+              <tr><td style="padding:6px 12px;font-weight:bold">Experience</td><td>${experience}</td></tr>
+              ${currentRole ? `<tr><td style="padding:6px 12px;font-weight:bold">Current Role</td><td>${currentRole}</td></tr>` : ''}
+              ${currentCompany ? `<tr><td style="padding:6px 12px;font-weight:bold">Company</td><td>${currentCompany}</td></tr>` : ''}
+              ${linkedIn ? `<tr><td style="padding:6px 12px;font-weight:bold">LinkedIn</td><td><a href="${linkedIn}">${linkedIn}</a></td></tr>` : ''}
+            </table>
+            <p style="margin-top:1rem;font-size:0.85rem;opacity:0.6">Application #${application.id} · ${new Date().toLocaleDateString()}</p>
+          </div>
+        `
+      );
 
       res.status(201).json({
         success: true,
