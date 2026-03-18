@@ -334,6 +334,7 @@ export default function App() {
           <a href="#hero" className="nav-link">Home</a>
           <a href="#about" className="nav-link">About</a>
           <a href="#services" className="nav-link">Services</a>
+          <a href="/careers" className="nav-link">Careers</a>
           <a href="#contact" className="nav-link">Contact</a>
         </div>
 
@@ -363,10 +364,10 @@ export default function App() {
           </svg>
         </button>
         <div className="mobile-nav-links">
-          {['Home', 'About', 'Services', 'Contact'].map(link => (
+          {['Home', 'About', 'Services', 'Careers', 'Contact'].map(link => (
             <a
               key={link}
-              href={`#${link.toLowerCase() === 'home' ? 'hero' : link.toLowerCase()}`}
+              href={link === 'Careers' ? '/careers' : `#${link.toLowerCase() === 'home' ? 'hero' : link.toLowerCase()}`}
               className="mobile-nav-link"
               onClick={() => setIsMobileMenuOpen(false)}
             >
@@ -616,8 +617,8 @@ export default function App() {
               <span>PrimeCode</span>
             </div>
             <nav className="footer-bar-nav">
-              {['Home', 'About', 'Services', 'Contact'].map(l => (
-                <a key={l} href={`#${l.toLowerCase()}`} className="footer-nav-link">{l}</a>
+              {['Home', 'About', 'Services', 'Careers', 'Contact'].map(l => (
+                <a key={l} href={l === 'Careers' ? '/careers' : `#${l.toLowerCase()}`} className="footer-nav-link">{l}</a>
               ))}
             </nav>
             <span className="footer-copy">&copy; {new Date().getFullYear()} PrimeCode Solutions</span>

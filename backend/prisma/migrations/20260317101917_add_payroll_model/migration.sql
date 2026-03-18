@@ -1,0 +1,21 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "baseSalary" DOUBLE PRECISION DEFAULT 0;
+
+-- CreateTable
+CREATE TABLE "Payroll" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "month" TEXT NOT NULL,
+    "year" INTEGER NOT NULL,
+    "baseSalary" DOUBLE PRECISION NOT NULL,
+    "bonus" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "deductions" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "netSalary" DOUBLE PRECISION NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'unpaid',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Payroll_pkey" PRIMARY KEY ("id")
+);
+
+-- AddForeignKey
+ALTER TABLE "Payroll" ADD CONSTRAINT "Payroll_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

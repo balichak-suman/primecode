@@ -1,0 +1,545 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  HR
+  EMPLOYEE
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum LeaveType {
+  CASUAL
+  SICK
+  EARNED
+  MATERNITY
+  PATERNITY
+  COMPENSATORY
+  UNPAID
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  LEAVE
+  HALF_DAY
+  HOLIDAY
+  WFH
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+}
+
+enum WorkLocation {
+  OFFICE
+  REMOTE
+  HYBRID
+}
+
+enum HolidayType {
+  PUBLIC
+  RESTRICTED
+}
+
+enum ReviewType {
+  QUARTERLY
+  ANNUAL
+}
+
+enum ReviewStatus {
+  DRAFT
+  SUBMITTED
+  ACKNOWLEDGED
+  FOLLOW_UP
+  FINAL
+}
+
+enum GoalStatus {
+  IN_PROGRESS
+  COMPLETED
+  AT_RISK
+  CANCELLED
+}
+
+enum AnnouncementType {
+  GENERAL
+  URGENT
+  HOLIDAY
+  POLICY
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+  name     String
+  role     Role   @default(EMPLOYEE)
+
+  // Basic Info (Kept for compatibility)
+  employeeId  String? @unique
+  department  String?
+  designation String?
+  avatar      String?
+  phone       String?
+  status      String  @default("active")
+
+  // Auth Fields
+  lastLogin           DateTime?
+  resetToken          String?
+  resetTokenExpiry    DateTime?
+  failedLoginAttempts Int       @default(0)
+  lockUntil           DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Relations
+  employeeProfile    EmployeeProfile?
+  attendance         Attendance[]
+  leaves             Leave[]
+  tasks              Task[]
+  projects           Project[]           @relation("UserProjects")
+  messages           ChatMessage[]
+  payroll            Payroll[]
+  auditLogs          AuditLog[]
+  leaveBalances      LeaveBalance[]
+  salaryStructures   SalaryStructure[]
+  performanceReviews PerformanceReview[]
+  goals              Goal[]
+  announcements      Announcement[]
+  notifications      Notification[]
+  
+  // Relations mapped from newly added Phase 12 architecture
+  userRegularizations    AttendanceRegularization[] @relation("UserRegularizations")
+  managerRegularizations AttendanceRegularization[] @relation("ManagerRegularizations")
+  updatedSettings        SystemSettings[]
+  reimbursements         Reimbursement[]
+  postedJobs             JobPosting[]          @relation("PostedJobs")
+  reviewedApplications   JobApplication[]      @relation("ReviewedApplications")
+}
+
+model EmployeeProfile {
+  id                 Int            @id @default(autoincrement())
+  userId             Int            @unique
+  user               User           @relation(fields: [userId], references: [id])
+  grade              String?
+  reportingManagerId Int?
+  joiningDate        DateTime?
+  probationEnd       DateTime?
+  confirmationDate   DateTime?
+  employmentType     EmploymentType @default(FULL_TIME)
+  workLocation       WorkLocation   @default(OFFICE)
+  address            String?
+  personalEmail      String?
+  dob                DateTime?
+  gender             String?
+  bloodGroup         String?
+  emergencyContact   Json? // { name, phone, relation }
+
+  // Tax & statutory
+  panNumber          String?
+  pfNumber           String?
+  esiNumber          String?
+
+  // JSON arrays
+  bankDetails Json? // { accountNo, ifsc, bankName }
+  documents   Json? // [{name, url, uploadedAt}]
+  skills      Json? // [String]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attendance {
+  id              Int              @id @default(autoincrement())
+  userId          Int
+  user            User             @relation(fields: [userId], references: [id])
+  date            DateTime         @default(now())
+  clockIn         DateTime?
+  clockOut        DateTime?
+  expectedOutTime DateTime?
+  totalHours      Float?
+  lateMinutes     Int              @default(0)
+  status          AttendanceStatus @default(PRESENT)
+  location        String?
+  ipAddress       String?
+  selfieUrl       String?
+  notes           String?
+  approvedById    Int?
+  overtime        Float?           @default(0)
+  createdAt       DateTime         @default(now())
+  
+  regularizations AttendanceRegularization[]
+}
+
+model Leave {
+  id            Int         @id @default(autoincrement())
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id])
+  type          String // Keeping String for legacy compatibility
+  leaveType     LeaveType   @default(CASUAL)
+  startDate     DateTime // Legacy map
+  endDate       DateTime // Legacy map
+  appliedOn     DateTime    @default(now())
+  days          Float       @default(1)
+  halfDay       Boolean     @default(false)
+  reason        String?
+  status        LeaveStatus @default(PENDING)
+  reviewedBy    Int?
+  reviewedOn    DateTime?
+  comments      String?
+  attachments   Json? // [url_strings]
+  attachmentUrl String?
+  createdAt     DateTime    @default(now())
+}
+
+model LeaveBalance {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  year         Int
+  casual       Json // {total, used, remaining}
+  sick         Json // {total, used, remaining}
+  earned       Json // {total, used, remaining}
+  compensatory Json // {total, used, remaining}
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, year])
+}
+
+model Payroll {
+  id     Int    @id @default(autoincrement())
+  userId Int
+  user   User   @relation(fields: [userId], references: [id])
+  month  String
+  year   Int
+
+  earnings   Json? // {basic, hra, transport, medical, special, other}
+  deductions Json? // {pf, esi, tds, professionalTax, other}
+
+  baseSalary      Float // Legacy
+  bonus           Float @default(0) // Legacy
+  grossSalary     Float @default(0)
+  totalDeductions Float @default(0)
+  netSalary       Float
+
+  paymentDate DateTime?
+  paymentMode String?
+  payslipUrl  String?
+  status      String    @default("DRAFT") // DRAFT, PROCESSED, PAID
+  createdAt   DateTime  @default(now())
+}
+
+model SalaryStructure {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  grade         String?
+  effectiveFrom DateTime @default(now())
+  ctc           Float    @default(0)
+  basic         Float    @default(0)
+  hra           Float    @default(0)
+  transport     Float    @default(0)
+  medical       Float    @default(0)
+  special       Float    @default(0)
+  pf              Float    @default(0)
+  esi             Float    @default(0)
+  tds             Float    @default(0)
+  professionalTax Float    @default(0)
+  otherDeductions Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Project {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  client      String?
+  priority    String?   @default("medium")
+  budget      Float?
+  startDate   DateTime?
+  endDate     DateTime?
+  status      String    @default("active")
+  progress    Float     @default(0)
+  milestones  Json? // [{id, title, status, date}]
+  tags        Json? // [String]
+
+  members   User[]   @relation("UserProjects")
+  tasks     Task[]
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  projectId   Int
+  project     Project   @relation(fields: [projectId], references: [id])
+  assignedTo  Int
+  user        User      @relation(fields: [assignedTo], references: [id])
+  title       String
+  description String?
+  dueDate     DateTime?
+  status      String    @default("pending")
+  position    Int       @default(0)
+  createdAt   DateTime  @default(now())
+}
+
+model PerformanceReview {
+  id                 Int          @id @default(autoincrement())
+  userId             Int
+  user               User         @relation(fields: [userId], references: [id])
+  reviewPeriod       String // e.g "Q1 2026"
+  reviewType         ReviewType   @default(QUARTERLY)
+  reviewedById       Int?
+  selfAssessment     Json? // { goals:[], competencies:[], achievements:[], improvements:[], training:[], aspirations:[] }
+  managerAssessment  Json? // { ratings:[], overallRating, comments }
+  overallRating      Float?
+  status             ReviewStatus @default(DRAFT)
+  lastUpdated        DateTime     @default(now())
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+model Goal {
+  id          Int        @id @default(autoincrement())
+  userId      Int
+  user        User       @relation(fields: [userId], references: [id])
+  title       String
+  description String?
+  target      Float      @default(100)
+  current     Float      @default(0)
+  dueDate     DateTime?
+  status      GoalStatus @default(IN_PROGRESS)
+  visibility  String     @default("PUBLIC")
+  alignment   String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Announcement {
+  id             Int              @id @default(autoincrement())
+  title          String
+  content        String
+  type           AnnouncementType @default(GENERAL)
+  category       String           @default("General")
+  postedById     Int
+  postedBy       User             @relation(fields: [postedById], references: [id])
+  postedAt       DateTime         @default(now())
+  expiresAt      DateTime?
+  scheduledAt    DateTime?
+  pinned         Boolean          @default(false)
+  targetRoles    Json?
+  targetDept     String?
+  readBy         Json?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // leave_approved, leave_rejected, new_leave, payslip, announcement, birthday, anniversary, probation, low_balance, regularization
+  title     String
+  message   String
+  link      String?  // Optional: deep link to relevant page
+  isRead    Boolean  @default(false)
+  metadata  Json?    // Extra info like { leaveId, announcementId }
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  method    String
+  url       String
+  ip        String?
+  module    String? // The HRMS module this applies to
+  details   Json? // Detailed diff or specifics
+  createdAt DateTime @default(now())
+}
+
+model TokenBlacklist {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model OTP {
+  id        Int      @id @default(autoincrement())
+  email     String
+  otpHash   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  text      String
+  senderId  Int
+  sender    User     @relation(fields: [senderId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+enum RegularizationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model AttendanceRegularization {
+  id           Int                  @id @default(autoincrement())
+  attendanceId Int
+  attendance   Attendance           @relation(fields: [attendanceId], references: [id])
+  userId       Int
+  user         User                 @relation("UserRegularizations", fields: [userId], references: [id])
+  managerId    Int?
+  manager      User?                @relation("ManagerRegularizations", fields: [managerId], references: [id])
+  requestedIn  DateTime
+  requestedOut DateTime
+  reason       String
+  status       RegularizationStatus @default(PENDING)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+}
+
+model SystemSettings {
+  id                 Int      @id @default(autoincrement())
+  officeStartTime    String   @default("09:00")
+  officeEndTime      String   @default("18:00")
+  gracePeriodMinutes Int      @default(15)
+  maxWfhDays         Int      @default(4)
+  updatedById        Int?
+  updatedBy          User?    @relation(fields: [updatedById], references: [id])
+  updatedAt          DateTime @updatedAt
+}
+
+model Holiday {
+  id          Int         @id @default(autoincrement())
+  date        DateTime
+  name        String
+  type        HolidayType @default(PUBLIC)
+  description String?
+  createdAt   DateTime    @default(now())
+}
+
+model LeavePolicy {
+  id              Int       @id @default(autoincrement())
+  grade           String    // Maps to EmployeeProfile.grade
+  leaveType       LeaveType
+  annualQuota     Float     @default(0)
+  maxCarryForward Float     @default(0)
+  isEncashable    Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Reimbursement {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  title       String
+  amount      Float
+  category    String   // e.g. Travel, Food, Internet
+  date        DateTime
+  receiptUrl  String?
+  description String?
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  remarks     String?
+  approvedBy  Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum JobStatus {
+  ACTIVE
+  PAUSED
+  CLOSED
+}
+
+enum ApplicationStatus {
+  NEW
+  REVIEWED
+  SHORTLISTED
+  INTERVIEWED
+  OFFERED
+  REJECTED
+  WITHDRAWN
+}
+
+model JobPosting {
+  id               Int              @id @default(autoincrement())
+  title            String
+  department       String
+  type             String           // Full-time, Part-time, Contract, Remote, Internship
+  location         String?
+  experience       String?
+  salary           String?
+  description      String
+  responsibilities String[]
+  requirements     String[]
+  niceToHave       String[]
+  perks            String[]
+  status           JobStatus        @default(ACTIVE)
+  postedBy         Int?
+  poster           User?            @relation("PostedJobs", fields: [postedBy], references: [id])
+  postedAt         DateTime         @default(now())
+  closingDate      DateTime?
+  applicationCount Int              @default(0)
+  applications     JobApplication[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model JobApplication {
+  id                 Int               @id @default(autoincrement())
+  jobId              Int
+  job                JobPosting        @relation(fields: [jobId], references: [id])
+  jobTitle           String?
+  department         String?
+  fullName           String
+  email              String
+  phone              String
+  currentRole        String?
+  currentCompany     String?
+  experience         String?
+  linkedIn           String?
+  portfolio          String?
+  coverLetter        String?
+  resumeUrl          String?
+  resumeOriginalName String?
+  status             ApplicationStatus @default(NEW)
+  appliedAt          DateTime          @default(now())
+  reviewedBy         Int?
+  reviewer           User?             @relation("ReviewedApplications", fields: [reviewedBy], references: [id])
+  reviewNotes        String?
+  rating             Int?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}
