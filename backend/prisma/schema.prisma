@@ -506,6 +506,7 @@ model JobPosting {
   requirements     String[]
   niceToHave       String[]
   perks            String[]
+  servicePeriod    String?
   status           JobStatus        @default(ACTIVE)
   postedBy         Int?
   poster           User?            @relation("PostedJobs", fields: [postedBy], references: [id])

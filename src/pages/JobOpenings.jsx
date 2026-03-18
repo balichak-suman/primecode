@@ -162,6 +162,7 @@ export default function JobOpenings() {
                       <span style={{ fontSize: '0.85rem', padding: '6px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', color: '#ccc', fontWeight: 500 }}>📍 {job.location}</span>
                       <span style={{ fontSize: '0.85rem', padding: '6px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', color: '#ccc', fontWeight: 500 }}>🎯 {job.experience}</span>
                       <span style={{ fontSize: '0.85rem', padding: '6px 14px', borderRadius: '8px', background: 'rgba(57,255,20,0.06)', color: '#39FF14', border: '1px solid rgba(57,255,20,0.15)', fontWeight: 500 }}>💰 {job.salary}</span>
+                      {job.servicePeriod && <span style={{ fontSize: '0.85rem', padding: '6px 14px', borderRadius: '8px', background: 'rgba(0,210,255,0.06)', color: '#00D2FF', border: '1px solid rgba(0,210,255,0.15)', fontWeight: 500 }}>⏳ {job.servicePeriod}</span>}
                     </div>
                   </div>
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -174,46 +175,8 @@ export default function JobOpenings() {
                 {/* Expanded */}
                 {expanded === job.id && (
                   <div onClick={e => e.stopPropagation()} style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.08)', animation: 'cFadeUp 0.3s ease-out' }}>
-                    <h4 style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>About the Role</h4>
-                    <p style={{ fontSize: '1.05rem', lineHeight: 1.8, opacity: 0.9, marginBottom: '2rem' }}>{job.description}</p>
-
-                    <h4 style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>Responsibilities</h4>
-                    <ul style={{ listStyle: 'none', padding: 0, marginBottom: '2rem' }}>
-                      {job.responsibilities?.map((r, i) => (
-                        <li key={i} style={{ padding: '6px 0', fontSize: '1.05rem', opacity: 0.9, display: 'flex', gap: '12px', lineHeight: 1.6 }}>
-                          <span style={{ color: '#00D2FF', fontWeight: 700, marginTop: '2px' }}>▸</span> {r}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <h4 style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>Requirements</h4>
-                    <ul style={{ listStyle: 'none', padding: 0, marginBottom: '2rem' }}>
-                      {job.requirements?.map((r, i) => (
-                        <li key={i} style={{ padding: '6px 0', fontSize: '1.05rem', opacity: 0.9, display: 'flex', gap: '12px', lineHeight: 1.6 }}>
-                          <span style={{ color: '#00D2FF', fontWeight: 700, marginTop: '2px' }}>▸</span> {r}
-                        </li>
-                      ))}
-                    </ul>
-
-                    {job.niceToHave?.length > 0 && (
-                      <>
-                        <h4 style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>Nice to Have</h4>
-                        <ul style={{ listStyle: 'none', padding: 0, marginBottom: '2rem' }}>
-                          {job.niceToHave.map((r, i) => (
-                            <li key={i} style={{ padding: '6px 0', fontSize: '1.05rem', opacity: 0.7, display: 'flex', gap: '12px', lineHeight: 1.6 }}>
-                              <span style={{ color: '#7928CA', marginTop: '2px' }}>▸</span> {r}
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-
-                    <h4 style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>Perks & Benefits</h4>
-                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
-                      {job.perks?.map((p, i) => (
-                        <span key={i} style={{ padding: '8px 16px', borderRadius: '20px', fontSize: '0.9rem', border: '1px solid rgba(57,255,20,0.3)', color: '#39FF14', background: 'rgba(57,255,20,0.08)', fontWeight: 500 }}>{p}</span>
-                      ))}
-                    </div>
+                    <h4 style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>Full Job Description</h4>
+                    <div style={{ fontSize: '1.05rem', lineHeight: 1.8, opacity: 0.9, marginBottom: '2rem', whiteSpace: 'pre-wrap' }}>{job.description}</div>
 
                     <button className="btn-glow" onClick={() => { setApplyJob(job); setAppStep(1); setAppStatus('idle'); setAppErrors({}); setAppForm({ fullName: '', email: '', phone: '', currentRole: '', currentCompany: '', linkedIn: '', portfolio: '', experience: '', coverLetter: '', resumeFile: null }); }} style={{ width: '100%', padding: '16px', fontSize: '1.1rem', fontWeight: 700, borderRadius: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
                       Apply Now <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>

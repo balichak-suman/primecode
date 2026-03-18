@@ -327,7 +327,7 @@ router.post('/admin/jobs', adminAuth,
       const {
         title, department, type, location, experience, salary,
         description, responsibilities, requirements, niceToHave, perks,
-        closingDate
+        servicePeriod, closingDate
       } = req.body;
 
       const job = await prisma.jobPosting.create({
@@ -341,6 +341,7 @@ router.post('/admin/jobs', adminAuth,
           requirements: requirements || [],
           niceToHave: niceToHave || [],
           perks: perks || [],
+          servicePeriod: servicePeriod || null,
           postedBy: req.user.id,
           closingDate: closingDate ? new Date(closingDate) : null,
         }
@@ -365,7 +366,7 @@ router.put('/admin/jobs/:id', adminAuth, async (req, res) => {
     const {
       title, department, type, location, experience, salary,
       description, responsibilities, requirements, niceToHave, perks,
-      status, closingDate
+      servicePeriod, status, closingDate
     } = req.body;
 
     const data = {};
@@ -380,6 +381,7 @@ router.put('/admin/jobs/:id', adminAuth, async (req, res) => {
     if (requirements !== undefined) data.requirements = requirements;
     if (niceToHave !== undefined) data.niceToHave = niceToHave;
     if (perks !== undefined) data.perks = perks;
+    if (servicePeriod !== undefined) data.servicePeriod = servicePeriod;
     if (status !== undefined) data.status = status.toUpperCase();
     if (closingDate !== undefined) data.closingDate = closingDate ? new Date(closingDate) : null;
 

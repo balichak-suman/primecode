@@ -21,8 +21,7 @@ export default function JobManagement() {
   const [editingJob, setEditingJob] = useState(null);
   const [jobForm, setJobForm] = useState({
     title: '', department: 'Engineering', type: 'Full-time', location: '',
-    experience: '', salary: '', description: '', responsibilities: '',
-    requirements: '', niceToHave: '', perks: '', closingDate: ''
+    experience: '', salary: '', servicePeriod: '', description: '', closingDate: ''
   });
 
   const token = localStorage.getItem('token');
@@ -69,15 +68,14 @@ export default function JobManagement() {
       setJobForm({
         title: job.title || '', department: job.department || 'Engineering', type: job.type || 'Full-time',
         location: job.location || '', experience: job.experience || '', salary: job.salary || '',
-        description: job.description || '', responsibilities: (job.responsibilities || []).join('\n'),
-        requirements: (job.requirements || []).join('\n'), niceToHave: (job.niceToHave || []).join('\n'),
-        perks: (job.perks || []).join('\n'), closingDate: job.closingDate ? new Date(job.closingDate).toISOString().split('T')[0] : ''
+        servicePeriod: job.servicePeriod || '', description: job.description || '', 
+        closingDate: job.closingDate ? new Date(job.closingDate).toISOString().split('T')[0] : ''
       });
     } else {
       setEditingJob(null);
       setJobForm({
         title: '', department: 'Engineering', type: 'Full-time', location: '', experience: '', salary: '',
-        description: '', responsibilities: '', requirements: '', niceToHave: '', perks: '', closingDate: ''
+        servicePeriod: '', description: '', closingDate: ''
       });
     }
     setShowJobModal(true);
@@ -87,9 +85,6 @@ export default function JobManagement() {
     e.preventDefault();
     try {
       const payload = { ...jobForm };
-      ['responsibilities', 'requirements', 'niceToHave', 'perks'].forEach(k => {
-        payload[k] = payload[k].split('\n').map(s => s.trim()).filter(s => s);
-      });
       if (!payload.closingDate) delete payload.closingDate;
 
       if (editingJob) {
@@ -348,31 +343,18 @@ export default function JobManagement() {
                   <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Salary Range</label>
                   <input value={jobForm.salary} onChange={e => setJobForm({ ...jobForm, salary: e.target.value })} placeholder="e.g. ₹12-18 LPA or Unpaid" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none' }} />
                 </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Service Period</label>
+                  <input value={jobForm.servicePeriod} onChange={e => setJobForm({ ...jobForm, servicePeriod: e.target.value })} placeholder="e.g. 1 Year, 6 Months" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none' }} />
+                </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Short Description *</label>
-                <textarea required value={jobForm.description} onChange={e => setJobForm({ ...jobForm, description: e.target.value })} rows="3" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'vertical' }} />
+                <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Full Job Description *</label>
+                <textarea required value={jobForm.description} onChange={e => setJobForm({ ...jobForm, description: e.target.value })} rows="8" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'vertical' }} />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Responsibilities (one per line)</label>
-                  <textarea value={jobForm.responsibilities} onChange={e => setJobForm({ ...jobForm, responsibilities: e.target.value })} rows="4" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'vertical' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Requirements (one per line)</label>
-                  <textarea value={jobForm.requirements} onChange={e => setJobForm({ ...jobForm, requirements: e.target.value })} rows="4" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'vertical' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Nice to Have (one per line)</label>
-                  <textarea value={jobForm.niceToHave} onChange={e => setJobForm({ ...jobForm, niceToHave: e.target.value })} rows="3" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'vertical' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Perks / Benefits (one per line)</label>
-                  <textarea value={jobForm.perks} onChange={e => setJobForm({ ...jobForm, perks: e.target.value })} rows="3" style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'vertical' }} />
-                </div>
-              </div>
+
 
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
                 <button type="button" onClick={() => setShowJobModal(false)} style={{ padding: '12px 24px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontWeight: 600 }}>Cancel</button>
