@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { Helmet } from 'react-helmet-async';
 import logoSymbolSvg from '../assets/logo-symbol.svg';
 
 import { API_URL } from '../config/api';
@@ -69,6 +70,10 @@ export default function JobOpenings() {
 
   return (
     <div style={{ fontFamily: "'Outfit', sans-serif", background: '#000', color: '#fff', minHeight: '100vh', position: 'relative' }}>
+      <Helmet>
+        <title>Open Positions | PrimeCode Careers</title>
+        <meta name="description" content="View all current job openings at PrimeCode. Apply now to join our global engineering team." />
+      </Helmet>
       {/* BG */}
       <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
         <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />

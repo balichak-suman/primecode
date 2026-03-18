@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
 import logoSymbolSvg from '../assets/logo-symbol.svg';
 
@@ -34,6 +35,10 @@ export default function Careers() {
 
   return (
     <div style={{ fontFamily: "'Outfit', sans-serif", background: '#000', color: '#fff', minHeight: '100vh', position: 'relative' }}>
+      <Helmet>
+        <title>Careers at PrimeCode | Join Our Team</title>
+        <meta name="description" content="Explore open roles and build the future with PrimeCode. We're hiring engineers, designers, and innovators." />
+      </Helmet>
       {/* BG */}
       <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
         <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />

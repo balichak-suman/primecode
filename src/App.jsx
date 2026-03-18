@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Spline from '@splinetool/react-spline';
+import { Helmet } from 'react-helmet-async';
 import emailjs from '@emailjs/browser';
 import logoSymbolSvg from './assets/logo-symbol.svg'
 import './index.css'
@@ -313,6 +314,10 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <Helmet>
+        <title>PrimeCode | Engineering Digital Excellence</title>
+        <meta name="description" content="PrimeCode architects global digital systems and software solutions. Join our team of innovators crafting next-generation software." />
+      </Helmet>
       {/* Cursor glow */}
       <div ref={cursorGlowRef} className="cursor-glow" aria-hidden="true" />
       {/* Fixed Background Layer */}
