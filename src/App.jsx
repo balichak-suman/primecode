@@ -336,6 +336,7 @@ export default function App() {
           <a href="#services" className="nav-link">Services</a>
           <a href="/careers" className="nav-link">Careers</a>
           <a href="#contact" className="nav-link">Contact</a>
+          <a href="/login" className="btn-glow" style={{ fontSize: '0.85rem', padding: '6px 16px', marginLeft: '1rem', textDecoration: 'none' }}>Login</a>
         </div>
 
         {/* Mobile Hamburger Toggle */}
@@ -374,6 +375,13 @@ export default function App() {
               {link}
             </a>
           ))}
+          <a 
+            href="/login" 
+            className="btn-glow" 
+            style={{ margin: '1rem auto 0', width: 'fit-content', textDecoration: 'none', padding: '10px 30px', fontSize: '1.1rem' }}
+          >
+            Login
+          </a>
         </div>
       </div>
 
