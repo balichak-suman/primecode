@@ -241,7 +241,7 @@ router.post('/apply',
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0a0a;color:#fff;padding:2rem;border-radius:12px;border:1px solid rgba(0,210,255,0.2)">
             <h2 style="color:#00D2FF;margin-top:0">Application Received ✓</h2>
             <p>Hi <strong>${fullName}</strong>,</p>
-            <p>Thank you for applying for <strong style="color:#00D2FF">${job.title}</strong> at PrimeCode Solutions.</p>
+            <p>Thank you for applying for <strong style="color:#00D2FF">${job.title}</strong> at PrimeCode.</p>
             <p>We have received your application and our team will review it within <strong>5–7 business days</strong>. If your profile matches our requirements, we'll reach out for next steps.</p>
             <div style="padding:1rem;background:rgba(0,210,255,0.05);border:1px solid rgba(0,210,255,0.1);border-radius:8px;margin:1rem 0">
               <p style="margin:0;font-size:0.9rem"><strong>Position:</strong> ${job.title}</p>
