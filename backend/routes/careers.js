@@ -213,8 +213,8 @@ router.post('/apply',
 
       // Send confirmation email to applicant (non-blocking)
       if (process.env.SMTP_USER) {
-        transporter.sendMail({
-          from: `"PrimeCode Careers" <${process.env.SMTP_USER}>`,
+       await transporter.sendMail({
+          from: `"PrimeCode Careers" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
           to: email,
           subject: `Application Received — ${job.title} at PrimeCode`,
           html: `
@@ -234,8 +234,8 @@ router.post('/apply',
         }).catch(err => console.error('[CAREERS] Applicant email error:', err.message));
 
         // Send notification to HR team
-        transporter.sendMail({
-          from: `"PrimeCode Careers" <${process.env.SMTP_USER}>`,
+       await transporter.sendMail({
+          from: `"PrimeCode HR Portal" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
           to: HR_EMAIL,
           subject: `New Application: ${fullName} for ${job.title}`,
           html: `

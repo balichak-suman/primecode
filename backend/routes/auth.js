@@ -138,7 +138,7 @@ router.post('/forgot-password', async (req, res) => {
     try {
       if(process.env.SMTP_USER && process.env.SMTP_PASS) {
          await transporter.sendMail({
-            from: `"PrimeCode" <${process.env.SMTP_USER}>`,
+            from: `"PrimeCode" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
             to: email,
             subject: 'PrimeCode - Password Reset OTP',
             text: `Your password reset OTP is: ${otp}. It will expire in 15 minutes.`
