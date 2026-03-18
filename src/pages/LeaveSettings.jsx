@@ -62,14 +62,14 @@ const LeaveSettings = () => {
         <Settings /> Leave Policy Management
       </h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
         
         {/* LEAVE POLICY QUOTAS */}
         <div className="glass-card" style={{ padding: '2rem' }}>
           <h3 style={{ color: '#00D2FF', marginBottom: '1.5rem', borderBottom: '1px solid rgba(0,210,255,0.2)', paddingBottom: '10px' }}>Quota Configuration</h3>
           <form onSubmit={handleCreatePolicy} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', marginBottom: '4px' }}>Employee Grade</label>
                 <input type="text" className="form-input" value={policyForm.grade} onChange={(e) => setPolicyForm({...policyForm, grade: e.target.value})} required placeholder="e.g. L1, L2, Manager" style={{ width: '100%', background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }} />
@@ -85,7 +85,7 @@ const LeaveSettings = () => {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', marginBottom: '4px' }}>Annual Quota (Days)</label>
                 <input type="number" className="form-input" value={policyForm.annualQuota} onChange={(e) => setPolicyForm({...policyForm, annualQuota: e.target.value})} required style={{ width: '100%', background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)' }} />

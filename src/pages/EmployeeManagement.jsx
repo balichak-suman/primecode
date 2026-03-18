@@ -152,7 +152,7 @@ const EmployeeManagement = () => {
 
         <form onSubmit={handleSaveEmployee} style={{ padding: '2.5rem' }}>
           {activeFormTab === 'personal' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
               <div className="input-group">
                 <label>Full Name</label>
                 <input className="form-input" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
@@ -182,7 +182,7 @@ const EmployeeManagement = () => {
           )}
 
           {activeFormTab === 'job' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
                <div className="input-group">
                  <label>Work Email</label>
                  <input className="form-input" type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} required />
@@ -215,7 +215,7 @@ const EmployeeManagement = () => {
           )}
 
           {activeFormTab === 'compensation' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
                <div className="input-group">
                  <label>Bank Account Number</label>
                  <input className="form-input" value={formData.bankDetails.accountNo} onChange={e => setFormData({...formData, bankDetails: {...formData.bankDetails, accountNo: e.target.value}})} />

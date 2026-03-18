@@ -151,7 +151,7 @@ const Announcements = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                 <input className="form-input" placeholder="Announcement Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
                   <div>
                     <label style={{ fontSize: '0.7rem', opacity: 0.5, display: 'block', marginBottom: '4px' }}>TYPE</label>
                     <select className="form-input" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
@@ -173,7 +173,7 @@ const Announcements = () => {
                   <textarea className="form-input" rows={8} placeholder="Write your announcement content here... (supports basic formatting)" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} style={{ minHeight: '150px', lineHeight: '1.6' }} />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
                   <div>
                     <label style={{ fontSize: '0.7rem', opacity: 0.5, display: 'block', marginBottom: '4px' }}>EXPIRY DATE (optional)</label>
                     <input type="date" className="form-input" value={form.expiresAt} onChange={e => setForm({ ...form, expiresAt: e.target.value })} />

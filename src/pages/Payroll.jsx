@@ -204,7 +204,7 @@ const Payroll = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '3rem' }}>
                 <div>
                   <h4 style={{ color: '#00D2FF', borderBottom: '1px solid rgba(0,210,255,0.2)', paddingBottom: '8px' }}>EARNINGS</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '1rem' }}>
@@ -363,7 +363,7 @@ const Payroll = () => {
         {step === 4 && (
           <div className="glass-card" style={{ padding: '3rem', textAlign: 'center' }}>
             <h3 style={{ color: '#00D2FF' }}>Step 4: Payroll Preview Summary</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '2rem', margin: '2rem 0' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', margin: '2rem 0' }}>
                <div className="glass-card" style={{ padding: '1.5rem' }}>
                   <p style={{ margin: '0 0 10px 0', opacity: 0.5 }}>Total Payout</p>
                   <h2 style={{ margin:0, color: '#00ff88' }}>$248,500</h2>
@@ -411,7 +411,7 @@ const Payroll = () => {
   const renderAdminView = () => {
     return (
       <div className="admin-payroll-view">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
           {/* SALARY STRUCTURE EDITOR */}
           <div className="glass-card" style={{ padding: '2rem' }}>
             <h3 style={{ color: '#00D2FF', display: 'flex', alignItems: 'center', gap: '10px' }}><Settings /> Structure Editor</h3>
@@ -422,7 +422,7 @@ const Payroll = () => {
                     {employees.map(e => <option key={e.id} value={e.id}>{e.name} ({e.employeeId})</option>)}
                   </select>
                </div>
-               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.6, marginBottom: '6px' }}>Annual CTC ($)</label>
                     <input type="number" className="form-input" placeholder="e.g. 50000" style={{ width: '100%' }} />
@@ -439,7 +439,7 @@ const Payroll = () => {
           {/* QUICK REPORTS */}
           <div className="glass-card" style={{ padding: '2rem' }}>
             <h3 style={{ color: '#8A2BE2', display: 'flex', alignItems: 'center', gap: '10px' }}><PieChart /> Payroll Intelligence</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '1.5rem' }}>
                <button className="btn-outline" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1.5rem', gap: '10px' }}>
                  <Users size={24} /> <span>Dept. wise Cost</span>
                </button>

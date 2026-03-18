@@ -259,7 +259,7 @@ export default function JobManagement() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '12px', marginBottom: '1.5rem' }}>
                   {[
                     { l: 'Email', v: selectedApp.email },
                     { l: 'Phone', v: selectedApp.phone },

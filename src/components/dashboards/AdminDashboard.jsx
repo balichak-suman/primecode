@@ -41,7 +41,7 @@ const AdminDashboard = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
       {/* Header Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', gap: '1rem' }}>
         <div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
             System Administration
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
 
       {/* System Administration & HR Overview Stats */}
       <h3 style={{ fontSize: '1.2rem', marginBottom: '-1rem', color: 'rgba(255,255,255,0.8)' }}>Organization Pulse</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
         {[
           { label: 'Total Employees', value: '115', trend: '+3', color: '#00D2FF' },
           { label: 'Present Today', value: '102', trend: '88%', color: '#39FF14' },
@@ -84,7 +84,7 @@ const AdminDashboard = () => {
 
       <h3 style={{ fontSize: '1.2rem', marginBottom: '-1rem', marginTop: '1rem', color: 'rgba(255,255,255,0.8)' }}>Infrastructure Health</h3>
       {/* System Health Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
         <div className="glass-card" style={{ padding: '1.5rem', borderLeft: '3px solid #39FF14' }}>
           <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#39FF14', boxShadow: '0 0 8px #39FF14' }}></div>
@@ -123,7 +123,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         
         {/* Left Column: Big Charts */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>

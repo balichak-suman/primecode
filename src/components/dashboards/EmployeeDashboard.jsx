@@ -49,7 +49,7 @@ const EmployeeDashboard = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
       {/* Greeting Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0, 210, 255, 0.05)', padding: '1.5rem 2rem', borderRadius: '16px', border: '1px solid rgba(0, 210, 255, 0.1)' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0, 210, 255, 0.05)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(0, 210, 255, 0.1)', gap: '1rem' }}>
         <div>
           <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>
             <span className="gradient-text">{getGreeting()}, {user?.name?.split(' ')[0] || 'User'}</span> 👋
@@ -65,7 +65,7 @@ const EmployeeDashboard = () => {
       </div>
 
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
         
         {/* Attendance Ring Card */}
         <div className="glass-card" style={{ padding: '1.5rem', position: 'relative', overflow: 'hidden' }}>
@@ -116,13 +116,13 @@ const EmployeeDashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div style={{ display: 'flex', gap: '1rem', padding: '0.5rem 0' }}>
+      <div style={{ display: 'flex', gap: '1rem', padding: '0.5rem 0', flexWrap: 'wrap' }}>
         <Link to="/dashboard/attendance" className="btn-glow" style={{ flex: 1, textAlign: 'center', padding: '1rem', textDecoration: 'none' }}>Mark Attendance</Link>
         <Link to="/dashboard/leaves" className="btn-outline" style={{ flex: 1, textAlign: 'center', padding: '1rem', textDecoration: 'none' }}>Apply for Leave</Link>
         <Link to="/dashboard/payroll" className="btn-glow" style={{ flex: 1, textAlign: 'center', padding: '1rem', textDecoration: 'none' }}>View Payslip</Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
         
         {/* Charts & Graphs Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>

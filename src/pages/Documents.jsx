@@ -400,7 +400,7 @@ const Documents = () => {
                       <div>
                         <h3 style={{ margin: 0, fontSize: '1.4rem' }}>{user?.name}</h3>
                         <p style={{ margin: '0 0 15px', fontSize: '0.75rem', color: '#00D2FF', opacity: 0.8 }}>{user?.designation || 'Software Engineer'}</p>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                           {[{ l: 'ACCESS ID', v: user?.employeeId || `PC${String(user?.id).padStart(3,'0')}` }, { l: 'ROLE', v: user?.role }, { l: 'JOINED', v: user?.createdAt ? new Date(user.createdAt).getFullYear() : '2025' }].map(m => (
                             <div key={m.l}><div style={{ fontSize: '0.55rem', opacity: 0.4 }}>{m.l}</div><div style={{ fontSize: '0.7rem', fontWeight: 600 }}>{m.v}</div></div>
                           ))}

@@ -261,7 +261,7 @@ const Analytics = () => {
             <KPICard icon={Briefcase} label="Open Positions" value={d.kpis.openPositions} trend={d.kpis.openTrend} color={GOLD} />
             <KPICard icon={Award} label="Avg Performance" value={d.kpis.avgRating} trend={d.kpis.ratingTrend} color={CYAN} suffix="/5" />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
             <ChartCard title="New Hires vs Exits (Monthly)">
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={d.hiresExits}>
@@ -292,7 +292,7 @@ const Analytics = () => {
 
       {/* ═══ WORKFORCE ═══ */}
       {activeSection === 'workforce' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
           <ChartCard title="Headcount by Department" span={2}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={d.deptHeadcount} layout="vertical">
@@ -355,7 +355,7 @@ const Analytics = () => {
 
       {/* ═══ ATTENDANCE ═══ */}
       {activeSection === 'attendance' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
           <ChartCard title="Monthly Attendance Rate %" span={2}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={d.attendanceTrend}>
@@ -433,7 +433,7 @@ const Analytics = () => {
 
       {/* ═══ LEAVE ═══ */}
       {activeSection === 'leave' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
           <ChartCard title="Leave Utilization by Type" span={2}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={d.leaveUtil}>
@@ -494,7 +494,7 @@ const Analytics = () => {
 
       {/* ═══ PAYROLL ═══ */}
       {activeSection === 'payroll' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
           <ChartCard title="Monthly Payroll Cost Trend" span={2}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={d.payrollTrend}>
@@ -535,7 +535,7 @@ const Analytics = () => {
           </ChartCard>
 
           <ChartCard title="YTD Spend vs Budget" span={2} height={280}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
               {[
                 { label: 'YTD Spend', value: '₹14.2 Cr', sub: 'Jan - Mar 2026', color: CYAN },
                 { label: 'Annual Budget', value: '₹52.8 Cr', sub: 'FY 2025-26', color: PURPLE },
@@ -554,7 +554,7 @@ const Analytics = () => {
 
       {/* ═══ PERFORMANCE ═══ */}
       {activeSection === 'performance' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
           <ChartCard title="Rating Distribution (Bell Curve)" span={2}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={d.ratingDist}>

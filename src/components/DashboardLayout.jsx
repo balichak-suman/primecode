@@ -11,7 +11,18 @@ const DashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Close sidebar on route change (mobile)
+  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
+
+  // Close sidebar on window resize to desktop
+  useEffect(() => {
+    const handleResize = () => { if (window.innerWidth > 768) setSidebarOpen(false); };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Icon placeholder SVGs
   const icons = {
     dashboard: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>,
@@ -34,7 +45,7 @@ const DashboardLayout = () => {
   const getMenuLinks = () => {
     const role = user?.role || 'EMPLOYEE';
     const links = [
-      { to: '/dashboard', label: 'Dashboard Overview', icon: icons.dashboard, end: true },
+      { to: '/dashboard', label: 'Dashboard', icon: icons.dashboard, end: true },
       { to: '/dashboard/attendance', label: role === 'EMPLOYEE' ? 'My Attendance' : 'Attendance', icon: icons.attendance },
       { to: '/dashboard/leaves', label: role === 'EMPLOYEE' ? 'My Leaves' : 'Leaves', icon: icons.leaves },
       { to: '/dashboard/payroll', label: role === 'EMPLOYEE' ? 'My Payslip' : 'Payroll', icon: icons.payroll },
@@ -90,51 +101,41 @@ const DashboardLayout = () => {
 
   const getPageTitle = () => {
     const path = location.pathname;
-    if (path === '/dashboard') return 'Dashboard Overview';
+    if (path === '/dashboard') return 'Dashboard';
     const routeName = path.split('/').pop();
     return routeName.charAt(0).toUpperCase() + routeName.slice(1).replace('-', ' ');
   };
 
   return (
-    <div className="dashboard-layout" style={{ display: 'flex', minHeight: '100vh', background: '#000', color: '#fff' }}>
+    <div className="dashboard-layout">
       
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
+
       {/* Sidebar */}
-      <aside style={{
-        width: '260px', 
-        background: 'rgba(255, 255, 255, 0.03)', 
-        borderRight: '1px solid rgba(255, 255, 255, 0.05)',
-        display: 'flex',
-        flexDirection: 'column',
-        backdropFilter: 'blur(10px)',
-        zIndex: 50
-      }}>
-        <div style={{ padding: '2rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0, color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <div className="sidebar-header">
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 'bold', margin: 0, color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ color: '#00D2FF' }}>PrimeCode</span> HRMS
           </h2>
+          <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
         
-        <nav style={{ flex: 1, padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', overflowY: 'auto' }}>
+        <nav className="sidebar-nav">
           {menuLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               end={link.end}
-              style={({ isActive }) => ({
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '12px',
-                padding: '0.8rem 1rem',
-                borderRadius: '8px',
-                color: isActive ? '#00D2FF' : 'rgba(255, 255, 255, 0.6)',
-                background: isActive ? 'rgba(0, 210, 255, 0.05)' : 'transparent',
-                textDecoration: 'none',
-                transition: 'all 0.2s ease',
-                fontWeight: isActive ? '600' : '400'
-              })}
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+              onClick={() => setSidebarOpen(false)}
             >
-              <span style={{ display: 'flex', alignItems: 'center' }}>{link.icon}</span>
-              {link.label}
+              <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>{link.icon}</span>
+              <span className="sidebar-link-label">{link.label}</span>
               {link.to === '/dashboard/jobs' && newAppCount > 0 && (
                 <span style={{ marginLeft: 'auto', background: '#ff3366', color: '#fff', fontSize: '0.6rem', fontWeight: 700, borderRadius: '10px', padding: '2px 6px', minWidth: '18px', textAlign: 'center' }}>{newAppCount}</span>
               )}
@@ -144,51 +145,38 @@ const DashboardLayout = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <main className="dashboard-main">
         
         {/* Top Header */}
-        <header style={{
-          height: '70px',
-          background: 'rgba(255, 255, 255, 0.02)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 2rem',
-          backdropFilter: 'blur(10px)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 40
-        }}>
-          <div>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: '600', margin: 0, color: '#00D2FF', letterSpacing: '1px' }}>
-              {getPageTitle()}
-            </h1>
+        <header className="dashboard-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Hamburger button — mobile only */}
+            <button className="hamburger-btn" onClick={() => setSidebarOpen(true)}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <h1 className="dashboard-page-title">{getPageTitle()}</h1>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <NotificationBell userId={user?.id} />
 
             {/* Profile Dropdown */}
             <div style={{ position: 'relative' }}>
-              <div 
-                style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', padding: '0.5rem', borderRadius: '50px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', transition: 'border 0.3s ease' }}
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
+              <div className="profile-dropdown-trigger" onClick={() => setDropdownOpen(!dropdownOpen)}>
                 {user?.avatar ? (
                   <img src={user.avatar} style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} alt="Avatar" />
                 ) : (
-                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                   </div>
                 )}
-                <div style={{ paddingRight: '0.5rem', display: 'flex', flexDirection: 'column' }}>
+                <div className="profile-info">
                   <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>{user?.name || 'User'}</span>
                   <span style={{ ...getRoleBadgeStyle(), fontSize: '0.6rem', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', alignSelf: 'flex-start', fontWeight: 'bold' }}>
                     {user?.role}
                   </span>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px', color: 'rgba(255,255,255,0.5)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px', color: 'rgba(255,255,255,0.5)', flexShrink: 0 }}>
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
               </div>
@@ -223,7 +211,7 @@ const DashboardLayout = () => {
         </header>
 
         {/* Dynamic Outlet Area */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '2rem' }}>
+        <div className="dashboard-content">
           <Outlet />
         </div>
       </main>

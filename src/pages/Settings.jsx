@@ -154,7 +154,7 @@ const Settings = () => {
         {/* ═══ WORKING HOURS ═══ */}
         {activeTab === 'working' && (
           <Section title="Working Hours Configuration" icon={Clock}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
               <Field label="Office Start Time" value={workSettings.officeStartTime || ''} onChange={v => setWorkSettings({ ...workSettings, officeStartTime: v })} type="time" />
               <Field label="Office End Time" value={workSettings.officeEndTime || ''} onChange={v => setWorkSettings({ ...workSettings, officeEndTime: v })} type="time" />
               <Field label="Grace Period (minutes)" value={workSettings.gracePeriodMinutes || 0} onChange={v => setWorkSettings({ ...workSettings, gracePeriodMinutes: v })} type="number" />
@@ -169,7 +169,7 @@ const Settings = () => {
           <Section title="Holiday Calendar" icon={Calendar}>
             {/* Add form */}
             <div className="glass-card" style={{ padding: '1rem', marginBottom: '1.5rem', border: '1px solid rgba(0,210,255,0.1)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '8px' }}>
                 <input className="form-input" placeholder="Holiday Name" value={newHoliday.name} onChange={e => setNewHoliday({ ...newHoliday, name: e.target.value })} style={{ fontSize: '0.8rem' }} />
                 <input type="date" className="form-input" value={newHoliday.date} onChange={e => setNewHoliday({ ...newHoliday, date: e.target.value })} style={{ fontSize: '0.8rem' }} />
                 <select className="form-input" value={newHoliday.type} onChange={e => setNewHoliday({ ...newHoliday, type: e.target.value })} style={{ fontSize: '0.8rem' }}>
@@ -208,7 +208,7 @@ const Settings = () => {
         {activeTab === 'leave' && (
           <Section title="Leave Policy Editor" icon={FileText}>
             <div className="glass-card" style={{ padding: '1rem', marginBottom: '1.5rem', border: '1px solid rgba(0,210,255,0.1)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '8px', marginBottom: '8px' }}>
                 <input className="form-input" placeholder="Grade (A/B/C)" value={newPolicy.grade} onChange={e => setNewPolicy({ ...newPolicy, grade: e.target.value })} style={{ fontSize: '0.8rem' }} />
                 <select className="form-input" value={newPolicy.leaveType} onChange={e => setNewPolicy({ ...newPolicy, leaveType: e.target.value })} style={{ fontSize: '0.8rem' }}>
                   <option value="CASUAL">Casual</option><option value="SICK">Sick</option><option value="EARNED">Earned</option>
@@ -278,7 +278,7 @@ const Settings = () => {
 
             {/* Manual Triggers */}
             <h4 style={{ fontSize: '0.7rem', opacity: 0.3, textTransform: 'uppercase', letterSpacing: '1px', margin: '2rem 0 1rem' }}>Manual Triggers</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '8px' }}>
               {[
                 { id: 'markAbsent', label: 'Mark Absent' }, { id: 'birthdays', label: 'Birthday Check' },
                 { id: 'anniversaries', label: 'Anniversary Check' }, { id: 'probation', label: 'Probation Check' },
@@ -353,7 +353,7 @@ const Settings = () => {
         {/* ═══ SYSTEM & BACKUP ═══ */}
         {activeTab === 'backup' && (
           <Section title="System & Backup" icon={Database}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
               {[
                 { label: 'Database', value: 'PostgreSQL (Render)', color: '#39FF14' },
                 { label: 'ORM', value: 'Prisma v6.19', color: '#7928CA' },

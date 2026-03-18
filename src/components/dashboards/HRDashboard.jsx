@@ -72,7 +72,7 @@ const HRDashboard = () => {
       </div>
 
       {/* Summary Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem' }}>
         {[
           { label: 'Total Employees', value: '115', trend: '+3', color: '#00D2FF' },
           { label: 'Present Today', value: '102', trend: '88%', color: '#39FF14' },
@@ -92,12 +92,12 @@ const HRDashboard = () => {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
         
         {/* Left Column: Charts & Tables */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
             {/* Department Headcount (Pie Card) */}
             <div className="glass-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
               <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Department Headcount</h3>
