@@ -16,6 +16,7 @@
     "@emailjs/browser": "^4.4.1",
     "@splinetool/react-spline": "^4.1.0",
     "@splinetool/runtime": "^1.12.66",
+    "axios": "^1.13.6",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.577.0",
