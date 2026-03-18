@@ -9,7 +9,7 @@ import {
   Clock, Download, ExternalLink, Save, X 
 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+import { API_URL } from '../config/api';
 
 const EmployeeProfile = () => {
   const { id } = useParams();

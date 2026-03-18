@@ -8,7 +8,7 @@ import {
   X, Check, Send, ChevronDown, CreditCard, ShieldCheck, Zap, Printer
 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+import { API_URL } from '../config/api';
 
 const CATEGORIES = {
   company: { label: 'Company Documents', icon: Shield, color: '#00D2FF', desc: 'Offer Letters, Appointment, Policies' },

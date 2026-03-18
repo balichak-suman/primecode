@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import logoSymbolSvg from '../assets/logo-symbol.svg';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+import { API_URL } from '../config/api';
 
 const TYPE_COLORS = { 'Full-time': '#00D2FF', 'Part-time': '#7928CA', 'Contract': '#FFD700', 'Remote': '#39FF14' };
 

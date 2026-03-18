@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Settings, Calendar as CalendarIcon, Save, Plus, Trash2 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+import { API_URL } from '../config/api';
 
 const LeaveSettings = () => {
   const { hasRole } = useAuth();

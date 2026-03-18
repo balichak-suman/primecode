@@ -6,7 +6,7 @@ import {
   Plus, X, Eye, Clock, Trash2, ChevronDown, ChevronUp, Send, Search
 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+import { API_URL } from '../config/api';
 
 const TYPE_STYLES = {
   GENERAL: { color: '#00D2FF', bg: 'rgba(0,210,255,0.1)', border: 'rgba(0,210,255,0.2)', icon: Megaphone, label: 'General' },

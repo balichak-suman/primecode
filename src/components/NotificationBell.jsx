@@ -5,8 +5,7 @@ import io from 'socket.io-client';
 import { Bell, CheckCheck, Megaphone, Calendar, Award, DollarSign, Gift, Clock, AlertTriangle, UserCheck, FileText, X, Check, Briefcase } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
-const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:4000';
+import { API_URL, SOCKET_URL } from '../config/api';
 
 const TYPE_ICONS = {
   announcement: Megaphone, leave_approved: Check, leave_rejected: X,

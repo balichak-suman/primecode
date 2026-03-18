@@ -7,7 +7,7 @@ import {
   ChevronRight, Check, ToggleLeft, ToggleRight, RefreshCw
 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+import { API_URL } from '../config/api';
 
 const TABS = [
   { id: 'company', label: 'Company Profile', icon: Building2 },

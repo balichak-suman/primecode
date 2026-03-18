@@ -11,7 +11,7 @@ import {
   Settings, CheckCircle, Clock, AlertCircle, Plus, Trash2, Send
 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+import { API_URL } from '../config/api';
 
 const Payroll = () => {
   const { user, hasRole } = useAuth();

@@ -12,7 +12,7 @@ import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
 } from 'recharts';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+import { API_URL } from '../config/api';
 
 // ─── Custom Tooltip ───
 const CyberTooltip = ({ active, payload, label }) => {

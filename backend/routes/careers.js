@@ -205,7 +205,7 @@ router.post('/apply',
               type: 'CAREER',
               link: '/dashboard/jobs'
             }
-          }).catch(() => {});
+          }).catch(() => { });
         }
       } catch (socketErr) {
         console.error('[CAREERS] Socket notification error:', socketErr.message);

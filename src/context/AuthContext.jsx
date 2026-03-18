@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import { hasPermission, hasRole } from '../config/permissions';
+import { API_URL, SOCKET_URL } from '../config/api';
 
 const AuthContext = createContext();
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000';
 
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 const WARNING_TIME_MS = 2 * 60 * 1000; // 2 minutes

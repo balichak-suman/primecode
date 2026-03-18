@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+import { API_URL } from '../config/api';
 const STATUS_COLORS = { ACTIVE: '#39FF14', PAUSED: '#FFD700', CLOSED: '#ff3366' };
 const APP_STATUS_COLORS = { NEW: '#00D2FF', REVIEWED: '#7928CA', SHORTLISTED: '#FFD700', INTERVIEWED: '#00DFD8', OFFERED: '#39FF14', REJECTED: '#ff3366', WITHDRAWN: 'rgba(255,255,255,0.3)' };
 

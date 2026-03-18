@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { jsPDF } from 'jspdf';
 import { FileText, CheckCircle, XCircle, Clock, Calendar as CalendarIcon, X, Plus, Download, MessageSquare } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+import { API_URL } from '../config/api';
 
 // Utility for calculating business days on frontend
 const calculateBusinessDays = (start, end, holidays = []) => {

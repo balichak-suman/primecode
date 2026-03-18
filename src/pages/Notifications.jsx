@@ -5,7 +5,7 @@ import {
   DollarSign, Gift, Clock, AlertTriangle, UserCheck, FileText, X
 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+import { API_URL } from '../config/api';
 
 const TYPE_CONFIG = {
   announcement: { icon: Megaphone, color: '#00D2FF' },
