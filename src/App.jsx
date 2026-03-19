@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Spline from '@splinetool/react-spline';
 import { Helmet } from 'react-helmet-async';
 import emailjs from '@emailjs/browser';
-import logoSymbolSvg from './assets/logo-symbol.svg'
+import logoPng from './assets/logo.png'
 import './index.css'
 
 export default function App() {
@@ -330,7 +330,7 @@ export default function App() {
       {/* Navigation */}
       <nav className={`navbar ${isMobileMenuOpen ? 'menu-open' : ''}`}>
         <div className="nav-logo">
-          <img src={logoSymbolSvg} alt="PrimeCode Symbol" className="logo-img" />
+          <img src={logoPng} alt="PrimeCode Symbol" className="logo-img" />
           <span>PrimeCode</span>
         </div>
 
@@ -626,7 +626,7 @@ export default function App() {
           {/* Footer bar */}
           <div className="footer-bar">
             <div className="footer-bar-logo">
-              <img src={logoSymbolSvg} alt="PrimeCode" className="footer-logo-img" />
+              <img src={logoPng} alt="PrimeCode" className="footer-logo-img" />
               <span>PrimeCode</span>
             </div>
             <nav className="footer-bar-nav">

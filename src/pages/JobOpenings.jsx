@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
-import logoSymbolSvg from '../assets/logo-symbol.svg';
+import logoPng from '../assets/logo.png';
 
 import { API_URL } from '../config/api';
 
@@ -83,7 +83,7 @@ export default function JobOpenings() {
       {/* NAV */}
       <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#fff' }}>
-          <img src={logoSymbolSvg} alt="PrimeCode" style={{ height: '28px' }} />
+          <img src={logoPng} alt="PrimeCode" style={{ height: '28px' }} />
           <span style={{ fontWeight: 700, fontSize: '1.1rem', letterSpacing: '1px' }}>PrimeCode</span>
         </Link>
         <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
