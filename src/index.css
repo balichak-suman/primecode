@@ -1567,6 +1567,14 @@ canvas~a {
     display: none;
   }
 
+  .nav-links {
+    display: none;
+  }
+
+  .hamburger-btn {
+    display: flex;
+  }
+
   .about-section,
   .services-section,
   .contact-section {
