@@ -108,11 +108,11 @@ export default function JobOpenings() {
                   onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.background = 'rgba(255,255,255,0.04)'; }} />
               </div>
               
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.9rem', opacity: 0.5, alignSelf: 'center', marginRight: '6px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>Dept:</span>
+              <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px', maxWidth: '100%', WebkitOverflowScrolling: 'touch' }}>
+                <span style={{ fontSize: '0.8rem', opacity: 0.5, alignSelf: 'center', marginRight: '4px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, flexShrink: 0 }}>Dept:</span>
                 {['All', ...departments].map(d => (
                   <button key={d} onClick={() => setDeptFilter(d)} style={{
-                    padding: '8px 16px', borderRadius: '6px', fontSize: '0.95rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s',
+                    padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap', flexShrink: 0,
                     background: deptFilter === d ? 'rgba(0,210,255,0.1)' : 'transparent',
                     border: `1px solid ${deptFilter === d ? 'rgba(0,210,255,0.3)' : 'rgba(255,255,255,0.1)'}`,
                     color: deptFilter === d ? '#00D2FF' : 'rgba(255,255,255,0.6)'
@@ -122,10 +122,10 @@ export default function JobOpenings() {
 
               <div style={{ width: '1px', height: '28px', background: 'rgba(255,255,255,0.1)', margin: '0 8px', display: 'none' }} />
 
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px', maxWidth: '100%', WebkitOverflowScrolling: 'touch' }}>
                 {['All', 'Full-time', 'Part-time', 'Contract'].map(t => (
                   <button key={t} onClick={() => setTypeFilter(t)} style={{
-                    padding: '8px 16px', borderRadius: '6px', fontSize: '0.95rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s',
+                    padding: '6px 14px', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap', flexShrink: 0,
                     background: typeFilter === t ? 'rgba(121,40,202,0.1)' : 'transparent',
                     border: `1px solid ${typeFilter === t ? 'rgba(121,40,202,0.3)' : 'rgba(255,255,255,0.1)'}`,
                     color: typeFilter === t ? '#c084fc' : 'rgba(255,255,255,0.6)'
