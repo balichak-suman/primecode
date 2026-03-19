@@ -93,7 +93,7 @@ body {
 }
 
 .nav-logo {
-  height: 32px;
+  height: 38px;
   width: auto;
   display: flex;
   align-items: center;
@@ -102,7 +102,7 @@ body {
 }
 
 .logo-img {
-  height: 28px;
+  height: 34px;
   width: auto;
   filter: drop-shadow(0 0 10px var(--cyber-blue));
 }
@@ -1518,7 +1518,7 @@ canvas~a {
 }
 
 .footer-logo-img {
-  height: 22px;
+  height: 28px;
   filter: drop-shadow(0 0 8px rgba(0, 210, 255, 0.5));
 }
 
