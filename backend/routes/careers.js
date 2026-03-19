@@ -160,7 +160,8 @@ router.post('/apply',
 
       const {
         fullName, email, phone, jobId, jobTitle, department,
-        currentRole, currentCompany, experience, linkedIn, portfolio, coverLetter
+        currentRole, currentCompany, experience, linkedIn, portfolio, coverLetter,
+        college, graduationYear, academicBranch
       } = req.body;
 
       const parsedJobId = parseInt(jobId);
@@ -192,6 +193,9 @@ router.post('/apply',
           linkedIn: linkedIn || null,
           portfolio: portfolio || null,
           coverLetter: coverLetter || null,
+          college: college || null,
+          graduationYear: graduationYear || null,
+          academicBranch: academicBranch || null,
           resumeUrl,
           resumeOriginalName,
         }

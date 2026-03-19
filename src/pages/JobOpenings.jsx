@@ -23,7 +23,7 @@ export default function JobOpenings() {
   const [appStep, setAppStep] = useState(1);
   const [appStatus, setAppStatus] = useState('idle'); // idle | submitting | success
   const [appErrors, setAppErrors] = useState({});
-  const [appForm, setAppForm] = useState({ fullName: '', email: '', phone: '', currentRole: '', currentCompany: '', linkedIn: '', portfolio: '', experience: '', coverLetter: '', resumeFile: null });
+  const [appForm, setAppForm] = useState({ fullName: '', email: '', phone: '', currentRole: '', currentCompany: '', linkedIn: '', portfolio: '', experience: '', coverLetter: '', resumeFile: null, college: '', gradYear: '', academicBranch: '' });
   const fileInputRef = useRef(null);
   const [dragOver, setDragOver] = useState(false);
 
@@ -183,7 +183,7 @@ export default function JobOpenings() {
                     <h4 style={{ fontSize: '1rem', opacity: 0.7, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>Full Job Description</h4>
                     <div style={{ fontSize: '1.05rem', lineHeight: 1.8, opacity: 0.9, marginBottom: '2rem', whiteSpace: 'pre-wrap' }}>{job.description}</div>
 
-                    <button className="btn-glow" onClick={() => { setApplyJob(job); setAppStep(1); setAppStatus('idle'); setAppErrors({}); setAppForm({ fullName: '', email: '', phone: '', currentRole: '', currentCompany: '', linkedIn: '', portfolio: '', experience: '', coverLetter: '', resumeFile: null }); }} style={{ width: '100%', padding: '16px', fontSize: '1.1rem', fontWeight: 700, borderRadius: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+                    <button className="btn-glow" onClick={() => { setApplyJob(job); setAppStep(1); setAppStatus('idle'); setAppErrors({}); setAppForm({ fullName: '', email: '', phone: '', currentRole: '', currentCompany: '', linkedIn: '', portfolio: '', experience: '', coverLetter: '', resumeFile: null, college: '', gradYear: '', academicBranch: '' }); }} style={{ width: '100%', padding: '16px', fontSize: '1.1rem', fontWeight: 700, borderRadius: '12px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
                       Apply Now <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                     </button>
                   </div>
@@ -219,6 +219,13 @@ export default function JobOpenings() {
         };
         const handleSubmit = async () => {
           if (!appForm.experience) { setAppErrors({experience: 'Select experience'}); return; }
+          if (appForm.experience === 'Fresher') {
+            const e = {};
+            if (!appForm.college?.trim()) e.college = 'College is required';
+            if (!appForm.academicBranch?.trim()) e.academicBranch = 'Branch is required';
+            if (!appForm.gradYear) e.gradYear = 'Graduation year is required';
+            if (Object.keys(e).length > 0) { setAppErrors(e); return; }
+          }
           setAppStatus('submitting');
           try {
             const fd = new FormData();
@@ -230,6 +237,11 @@ export default function JobOpenings() {
             if (appForm.linkedIn) fd.append('linkedIn', appForm.linkedIn);
             if (appForm.portfolio) fd.append('portfolio', appForm.portfolio);
             if (appForm.coverLetter) fd.append('coverLetter', appForm.coverLetter);
+            if (appForm.experience === 'Fresher') {
+              if (appForm.college) fd.append('college', appForm.college);
+              if (appForm.gradYear) fd.append('graduationYear', appForm.gradYear);
+              if (appForm.academicBranch) fd.append('academicBranch', appForm.academicBranch);
+            }
             if (appForm.resumeFile) fd.append('resume', appForm.resumeFile);
             await axios.post(`${API_URL}/careers/apply`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
             setAppStatus('success');
@@ -320,6 +332,14 @@ export default function JobOpenings() {
                         </select>
                         {appErrors.experience && <div style={{ fontSize: '0.65rem', color: '#ff3366', marginTop: '4px' }}>{appErrors.experience}</div>}
                       </div>
+
+                      {appForm.experience === 'Fresher' && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '1.5rem', animation: 'cFadeUp 0.3s ease-out' }}>
+                          {inp('college', 'College / University', 'text', true, false)}
+                          {inp('academicBranch', 'Academic Branch (e.g. B.Tech CSE)', 'text', true, false)}
+                          {inp('gradYear', 'Graduation Year', 'number', true, false)}
+                        </div>
+                      )}
 
                       {/* Resume upload */}
                       <div style={{ marginBottom: '1.5rem' }}>

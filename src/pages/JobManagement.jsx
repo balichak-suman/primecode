@@ -264,8 +264,14 @@ export default function JobManagement() {
                     { l: 'Email', v: selectedApp.email },
                     { l: 'Phone', v: selectedApp.phone },
                     { l: 'Experience', v: selectedApp.experience },
-                    { l: 'Current Role', v: selectedApp.currentRole || '—' },
-                    { l: 'Company', v: selectedApp.currentCompany || '—' },
+                    ...(selectedApp.experience === 'Fresher' ? [
+                      { l: 'College', v: selectedApp.college || '—' },
+                      { l: 'Branch', v: selectedApp.academicBranch || '—' },
+                      { l: 'Grad Year', v: selectedApp.graduationYear || '—' }
+                    ] : [
+                      { l: 'Current Role', v: selectedApp.currentRole || '—' },
+                      { l: 'Company', v: selectedApp.currentCompany || '—' }
+                    ]),
                     { l: 'Applied', v: fmtDate(selectedApp.appliedAt) },
                   ].map((f, i) => (
                     <div key={i} style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '8px', padding: '8px 12px' }}>
