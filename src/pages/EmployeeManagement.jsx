@@ -152,7 +152,7 @@ const EmployeeManagement = () => {
 
         <form onSubmit={handleSaveEmployee} style={{ padding: '2.5rem' }}>
           {activeFormTab === 'personal' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '1.5rem' }}>
               <div className="input-group">
                 <label>Full Name</label>
                 <input className="form-input" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
@@ -182,7 +182,7 @@ const EmployeeManagement = () => {
           )}
 
           {activeFormTab === 'job' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '1.5rem' }}>
                <div className="input-group">
                  <label>Work Email</label>
                  <input className="form-input" type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} required />
@@ -215,7 +215,7 @@ const EmployeeManagement = () => {
           )}
 
           {activeFormTab === 'compensation' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '1.5rem' }}>
                <div className="input-group">
                  <label>Bank Account Number</label>
                  <input className="form-input" value={formData.bankDetails.accountNo} onChange={e => setFormData({...formData, bankDetails: {...formData.bankDetails, accountNo: e.target.value}})} />
@@ -333,7 +333,7 @@ const EmployeeManagement = () => {
       ) : (
         <div className={`employee-container ${viewMode}`}>
           {viewMode === 'grid' ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '2rem' }}>
                {employees.map(emp => (
                  <div key={emp.id} className="glass-card emp-card reveal" style={{ padding: '0', overflow: 'hidden' }}>
                     <div className="emp-card-header" style={{ height: '80px', background: 'linear-gradient(45deg, rgba(0,210,255,0.1), rgba(121,40,202,0.1))' }}></div>
@@ -358,7 +358,7 @@ const EmployeeManagement = () => {
                ))}
             </div>
           ) : (
-            <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
+            <div className="glass-card" style={{ padding: '0', overflowX: 'auto' }}>
                <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
                  <thead>
                     <tr style={{ background: 'rgba(255,255,255,0.03)', opacity: 0.5, fontSize: '0.85rem' }}>

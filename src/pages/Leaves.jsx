@@ -213,7 +213,7 @@ const Leaves = () => {
             <>
               {/* BALANCE QUOTAS ROW */}
               {balance && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
                   {leaveTypes.map(lt => {
                     const data = balance[lt.key] || { total: 0, used: 0, remaining: 0 };
                     const progress = data.total > 0 ? (data.used / data.total) * 100 : 0;

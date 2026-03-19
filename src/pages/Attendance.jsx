@@ -131,7 +131,7 @@ const Attendance = () => {
   };
 
   const renderStatusChips = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: '1rem', marginBottom: '2rem' }}>
       {[
         { label: 'Present', val: stats.PRESENT || 0, color: '#00D2FF' },
         { label: 'Absent', val: stats.ABSENT || 0, color: '#FF3366' },
@@ -249,7 +249,7 @@ const Attendance = () => {
       {viewMode === 'TEAM' ? renderTeamView() : (
         <>
           {/* Top Section: Punch Card & Today's Summary */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '2rem' }}>
         
         {/* Left: Punch Interaction */}
         <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3rem 2rem', position: 'relative', overflow: 'hidden' }}>
@@ -346,7 +346,7 @@ const Attendance = () => {
           </div>
         </div>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 40px), 1fr))', gap: '10px' }}>
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
             <div key={d} style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', paddingBottom: '10px' }}>{d}</div>
           ))}

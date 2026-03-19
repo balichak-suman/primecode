@@ -259,7 +259,7 @@ export default function JobManagement() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '12px', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '12px', marginBottom: '1.5rem' }}>
                   {[
                     { l: 'Email', v: selectedApp.email },
                     { l: 'Phone', v: selectedApp.phone },
@@ -314,7 +314,7 @@ export default function JobManagement() {
             <h2 style={{ marginTop: 0, color: '#00D2FF' }}>{editingJob ? 'Edit Job Posting' : 'Create Job Posting'}</h2>
             
             <form onSubmit={handleSaveJob} style={{ display: 'grid', gap: '1rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.8rem', opacity: 0.7, marginBottom: '6px' }}>Job Title *</label>
                   <input required value={jobForm.title} onChange={e => setJobForm({ ...jobForm, title: e.target.value })} style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none' }} />

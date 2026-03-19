@@ -81,7 +81,7 @@ export default function Careers() {
             <h2 style={{ fontSize: '2rem', fontWeight: 800, margin: 0 }}>
               Why <span style={{ background: 'linear-gradient(135deg, #00D2FF, #7928CA)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PrimeCode</span>?
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1.5rem' }}>
               {[
                 { icon: '🚀', title: 'Real-World Experience', desc: 'Work on live projects and build practical software dev skills.' },
                 { icon: '🧠', title: 'Mentorship & Growth', desc: 'Learn directly from experienced developers guiding your journey.' },

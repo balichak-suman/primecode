@@ -211,7 +211,7 @@ const Documents = () => {
                 <span style={{ fontSize: '0.7rem', opacity: 0.4 }}>{emp.documents.length} docs</span>
               </div>
               {emp.documents.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 200px), 1fr))', gap: '8px' }}>
                   {emp.documents.map((d, i) => <DocMiniCard key={i} doc={d} />)}
                 </div>
               )}
@@ -253,7 +253,7 @@ const Documents = () => {
           {loading ? (
             <div style={{ textAlign: 'center', padding: '4rem', color: '#00D2FF' }}>Loading vault...</div>
           ) : filteredDocs.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1rem' }}>
               {filteredDocs.map((doc, i) => (
                 <DocumentCard key={doc.id || i} doc={doc} onDelete={handleDelete} onShare={handleShare} onPreview={() => setPreviewDoc(doc)} />
               ))}
@@ -400,7 +400,7 @@ const Documents = () => {
                       <div>
                         <h3 style={{ margin: 0, fontSize: '1.4rem' }}>{user?.name}</h3>
                         <p style={{ margin: '0 0 15px', fontSize: '0.75rem', color: '#00D2FF', opacity: 0.8 }}>{user?.designation || 'Software Engineer'}</p>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '10px' }}>
                           {[{ l: 'ACCESS ID', v: user?.employeeId || `PC${String(user?.id).padStart(3,'0')}` }, { l: 'ROLE', v: user?.role }, { l: 'JOINED', v: user?.createdAt ? new Date(user.createdAt).getFullYear() : '2025' }].map(m => (
                             <div key={m.l}><div style={{ fontSize: '0.55rem', opacity: 0.4 }}>{m.l}</div><div style={{ fontSize: '0.7rem', fontWeight: 600 }}>{m.v}</div></div>
                           ))}

@@ -226,7 +226,7 @@ const Reports = () => {
 
         {/* REPORT CARDS */}
         {!showPreview && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1rem' }}>
             {currentCat?.reports.map(report => (
               <div key={report.id} className="glass-card" onClick={() => generateReport(report)}
                 style={{ padding: '1.5rem', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.3s', position: 'relative', overflow: 'hidden' }}
@@ -291,7 +291,7 @@ const Reports = () => {
             </div>
 
             {/* DATA TABLE */}
-            <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
+            <div className="glass-card" style={{ padding: '0', overflowX: 'auto' }}>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
                   <thead>

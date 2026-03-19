@@ -105,7 +105,7 @@ const Performance = () => {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
           <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem' }}>
             <Target style={{ color: '#00D2FF' }} />
             <div>
@@ -125,7 +125,7 @@ const Performance = () => {
         </div>
 
         {goals.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: '1.5rem' }}>
             {goals.map(goal => {
               const pct = goal.target ? Math.round((goal.current / goal.target) * 100) : 0;
               const statusColor = goal.status === 'COMPLETED' ? '#39FF14' : goal.status === 'AT_RISK' ? '#ff3366' : '#00D2FF';
@@ -227,7 +227,7 @@ const Performance = () => {
   const AnalyticsSection = () => (
     <div>
       <h2 className="gradient-text" style={{ marginBottom: '2rem' }}>Performance Intelligence</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '2rem' }}>
         <div className="glass-card" style={{ padding: '1.5rem', height: '400px' }}>
           <h3 style={{ opacity: 0.7, marginBottom: '2rem' }}>Competency Radar</h3>
           <div style={{ width: '100%', height: '280px' }}>

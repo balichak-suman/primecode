@@ -96,7 +96,7 @@ const EmployeeProfile = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '2rem' }}>
         {/* LEFT COLLUMN: KEY INFO */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
            <div className="glass-card" style={{ padding: '2.5rem', textAlign: 'center' }}>
@@ -128,7 +128,7 @@ const EmployeeProfile = () => {
 
            <div className="glass-card" style={{ padding: '2rem' }}>
               <h4 style={{ marginBottom: '1.5rem', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '1px' }}>Quick Stats</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '1rem' }}>
                  <div className="stat-box" style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '10px', textAlign: 'center' }}>
                     <h3 style={{ margin: 0, color: '#00D2FF' }}>{employee.attendance?.length || 0}</h3>
                     <p style={{ margin: 0, fontSize: '0.7rem', opacity: 0.5 }}>PRESENCE</p>
@@ -143,7 +143,7 @@ const EmployeeProfile = () => {
 
         {/* RIGHT COLUMN: TABS & DETAILS */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-           <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
+           <div className="glass-card" style={{ padding: '0', overflowX: 'auto' }}>
               <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                 {['overview', 'documents', 'timeline'].map(t => (
                   <button 
@@ -158,7 +158,7 @@ const EmployeeProfile = () => {
 
               <div style={{ padding: '2.5rem' }}>
                  {activeTab === 'overview' && (
-                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '3rem' }}>
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '3rem' }}>
                       <section>
                          <h4 style={{ color: '#00D2FF', marginBottom: '1.5rem' }}>Personal Core</h4>
                          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -198,7 +198,7 @@ const EmployeeProfile = () => {
                  )}
 
                  {activeTab === 'documents' && (
-                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 200px), 1fr))', gap: '1.5rem' }}>
                       {(profile.documents || [
                         { name: 'Offer Letter.pdf', type: 'PDF' },
                         { name: 'Identity Proof.jpg', type: 'IMG' },
