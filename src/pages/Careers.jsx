@@ -11,6 +11,7 @@ const TYPE_COLORS = { 'Full-time': '#00D2FF', 'Part-time': '#7928CA', 'Contract'
 export default function Careers() {
   const canvasRef = useRef(null);
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Particle canvas
   useEffect(() => {
@@ -46,16 +47,67 @@ export default function Careers() {
       </div>
 
       {/* NAV */}
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: '#fff' }}>
-          <img src={logoPng} alt="PrimeCode" style={{ height: '28px' }} />
-        </Link>
-        <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-          <Link to="/" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.85rem' }}>Home</Link>
-          <span style={{ color: '#00D2FF', fontWeight: 600, fontSize: '0.85rem' }}>Careers</span>
-          <Link to="/login" className="btn-outline" style={{ fontSize: '0.8rem', padding: '6px 16px' }}>Login</Link>
+      <nav className={`navbar ${isMobileMenuOpen ? 'menu-open' : ''}`}>
+        <div className="nav-logo">
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <img src={logoPng} alt="PrimeCode Symbol" className="logo-img" />
+          </Link>
         </div>
+
+        {/* Desktop Links */}
+        <div className="nav-links">
+          <a href="/#hero" className="nav-link">Home</a>
+          <a href="/#about" className="nav-link">About</a>
+          <a href="/#services" className="nav-link">Services</a>
+          <a href="/careers" className="nav-link">Careers</a>
+          <a href="/#contact" className="nav-link">Contact</a>
+          <a href="/login" className="btn-glow" style={{ fontSize: '0.85rem', padding: '6px 16px', marginLeft: '1rem', textDecoration: 'none' }}>Login</a>
+        </div>
+
+        {/* Mobile Hamburger Toggle */}
+        <button
+          className="hamburger-btn"
+          aria-label="Toggle menu"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <div className="hamburger-line"></div>
+          <div className="hamburger-line"></div>
+          <div className="hamburger-line"></div>
+        </button>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'active' : ''}`}>
+        <button
+          className="mobile-close-btn"
+          aria-label="Close menu"
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+        <div className="mobile-nav-links">
+          {['Home', 'About', 'Services', 'Careers', 'Contact'].map(link => (
+            <a
+              key={link}
+              href={link === 'Careers' ? '/careers' : `/#${link.toLowerCase() === 'home' ? 'hero' : link.toLowerCase()}`}
+              className="mobile-nav-link"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {link}
+            </a>
+          ))}
+          <a 
+            href="/login" 
+            className="btn-glow" 
+            style={{ margin: '1rem auto 0', width: 'fit-content', textDecoration: 'none', padding: '10px 30px', fontSize: '1.1rem' }}
+          >
+            Login
+          </a>
+        </div>
+      </div>
 
       <div style={{ position: 'relative', zIndex: 1 }}>
         {/* ═══ HERO ═══ */}
