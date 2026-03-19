@@ -331,7 +331,6 @@ export default function App() {
       <nav className={`navbar ${isMobileMenuOpen ? 'menu-open' : ''}`}>
         <div className="nav-logo">
           <img src={logoPng} alt="PrimeCode Symbol" className="logo-img" />
-          <span>PrimeCode</span>
         </div>
 
         {/* Desktop Links */}
@@ -627,7 +626,6 @@ export default function App() {
           <div className="footer-bar">
             <div className="footer-bar-logo">
               <img src={logoPng} alt="PrimeCode" className="footer-logo-img" />
-              <span>PrimeCode</span>
             </div>
             <nav className="footer-bar-nav">
               {['Home', 'About', 'Services', 'Careers', 'Contact'].map(l => (
