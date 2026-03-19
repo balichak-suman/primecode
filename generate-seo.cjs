@@ -16,13 +16,13 @@ const customRoutes = {
   'openings': {
     title: 'PrimeCode Careers | Join the Future of Tech',
     description: 'Explore exciting career opportunities at PrimeCode. Join our elite engineering team and build next-generation digital platforms.',
-    image: '',
+    image: 'https://primecode.in/logo.png',
     url: 'https://primecode.in/openings'
   },
   'about': {
      title: 'About PrimeCode | Engineering Excellence',
      description: 'Learn about PrimeCode, our mission, and our elite team of engineers.',
-     image: '',
+     image: 'https://primecode.in/logo.png',
      url: 'https://primecode.in/about'
   }
 };
