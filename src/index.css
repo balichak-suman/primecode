@@ -1568,11 +1568,11 @@ canvas~a {
   }
 
   .nav-links {
-    display: none;
+    display: none !important;
   }
 
   .hamburger-btn {
-    display: flex;
+    display: flex !important;
   }
 
   .about-section,
