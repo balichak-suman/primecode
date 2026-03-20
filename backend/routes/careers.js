@@ -57,13 +57,27 @@ const HR_EMAILS = [
 const sendBrevoEmail = async (to, subject, htmlContent) => {
   try {
     const toArray = Array.isArray(to) ? to.map(e => ({ email: e })) : [{ email: to }];
+    // Auto-wrap with branded logo header and footer
+    const brandedHtml = `
+      <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; max-width:650px; margin:0 auto; background:#0a0a0a; border-radius:12px; overflow:hidden; border:1px solid rgba(0,210,255,0.15);">
+        <div style="padding:20px 30px; border-bottom:1px solid rgba(0,210,255,0.1); text-align:center; background:linear-gradient(135deg, rgba(0,210,255,0.06), rgba(121,40,202,0.06));">
+          <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:36px;" />
+        </div>
+        ${htmlContent}
+        <div style="padding:16px 30px; border-top:1px solid rgba(255,255,255,0.06); text-align:center; background:rgba(0,0,0,0.3);">
+          <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:20px; opacity:0.5; margin-bottom:6px;" />
+          <p style="margin:0; color:rgba(255,255,255,0.25); font-size:11px;">www.primecode.in · Welcome to the future of tech.</p>
+          <p style="margin:4px 0 0; color:rgba(255,255,255,0.15); font-size:10px;">© ${new Date().getFullYear()} PrimeCode Solutions. All rights reserved.</p>
+        </div>
+      </div>
+    `;
     await axios.post(
       'https://api.brevo.com/v3/smtp/email',
       {
         sender: { name: 'PrimeCode Careers', email: SENDER_EMAIL },
         to: toArray,
         subject,
-        htmlContent,
+        htmlContent: brandedHtml,
       },
       {
         headers: {
@@ -653,8 +667,8 @@ router.post(
                 <!-- Header -->
                 <tr>
                   <td style="background:linear-gradient(135deg, rgba(0,210,255,0.1), rgba(121,40,202,0.1)); padding:32px 40px; text-align:center; border-bottom:1px solid rgba(0,210,255,0.1);">
-                    <h1 style="margin:0; font-size:24px; font-weight:800; color:#00D2FF; letter-spacing:2px;">PRIMECODE</h1>
-                    <p style="margin:8px 0 0; color:rgba(255,255,255,0.5); font-size:13px; letter-spacing:1px;">INTERVIEW INVITATION</p>
+                    <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:36px; margin-bottom:8px;" />
+                    <p style="margin:0; color:rgba(255,255,255,0.5); font-size:13px; letter-spacing:1px;">INTERVIEW INVITATION</p>
                   </td>
                 </tr>
 
@@ -1003,12 +1017,21 @@ router.post(
       // ═══ SEND EMAIL WITH PDF ATTACHMENT VIA BREVO ═══
       const emailSubject = `Offer of Employment – ${application.jobTitle || 'Open Position'} at PrimeCode Solutions`;
       const emailBody = `
-        <div style="font-family:'Segoe UI',sans-serif; padding:20px; color:#333;">
-          <p>Dear <strong>${application.fullName}</strong>,</p>
-          <p>Please find attached your official <strong>Offer of Employment</strong> from PrimeCode Solutions for the position of <strong>${application.jobTitle || 'the open position'}</strong>.</p>
-          <p>We are excited to welcome you to our team! Please review the attached offer letter carefully and reach out if you have any questions.</p>
-          <br/>
-          <p>Best regards,<br/><strong>Balichak Suman</strong><br/>Founder & CEO, PrimeCode Solutions<br/>www.primecode.in</p>
+        <div style="font-family:'Segoe UI',sans-serif; max-width:650px; margin:0 auto; background:#fff; border-radius:12px; overflow:hidden; border:1px solid #e2e8f0;">
+          <div style="padding:20px 30px; border-bottom:1px solid #e2e8f0; text-align:center; background:#f8fafc;">
+            <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:36px;" />
+          </div>
+          <div style="padding:24px 30px; color:#333;">
+            <p>Dear <strong>${application.fullName}</strong>,</p>
+            <p>Please find attached your official <strong>Offer of Employment</strong> from PrimeCode Solutions for the position of <strong>${application.jobTitle || 'the open position'}</strong>.</p>
+            <p>We are excited to welcome you to our team! Please review the attached offer letter carefully and reach out if you have any questions.</p>
+            <br/>
+            <p>Best regards,<br/><strong>Balichak Suman</strong><br/>Founder & CEO, PrimeCode Solutions<br/>www.primecode.in</p>
+          </div>
+          <div style="padding:14px 30px; border-top:1px solid #e2e8f0; text-align:center; background:#f8fafc;">
+            <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:18px; opacity:0.5; margin-bottom:4px;" />
+            <p style="margin:0; color:#999; font-size:10px;">© ${new Date().getFullYear()} PrimeCode Solutions. All rights reserved.</p>
+          </div>
         </div>
       `;
 
