@@ -22,6 +22,11 @@ export default function JobManagement() {
   const [interviewForm, setInterviewForm] = useState({ date: '', time: '', link: '' });
   const [interviewSending, setInterviewSending] = useState(false);
 
+  // Offer letter state
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [offerForm, setOfferForm] = useState({ salary: '', startDate: '', reportTo: '', terms: '' });
+  const [offerSending, setOfferSending] = useState(false);
+
   const [showJobModal, setShowJobModal] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [jobForm, setJobForm] = useState({
@@ -311,6 +316,20 @@ export default function JobManagement() {
                   📧 Schedule Interview
                 </button>
 
+                {/* Send Offer Letter Button */}
+                <button
+                  onClick={() => { setOfferForm({ salary: '', startDate: '', reportTo: '', terms: '' }); setShowOfferModal(true); }}
+                  style={{
+                    width: '100%', padding: '10px 16px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600,
+                    cursor: 'pointer', border: '1px solid rgba(57,255,20,0.3)', marginBottom: '1.2rem',
+                    background: 'linear-gradient(135deg, rgba(57,255,20,0.1), rgba(0,210,255,0.08))',
+                    color: '#39FF14', letterSpacing: '0.5px',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  📄 Send Offer Letter
+                </button>
+
                 {selectedApp.interviewStatus === 'SCHEDULED' && (
                   <div style={{ background: 'rgba(57,255,20,0.06)', border: '1px solid rgba(57,255,20,0.15)', borderRadius: '10px', padding: '10px 14px', marginBottom: '1.2rem', fontSize: '0.75rem' }}>
                     <div style={{ color: '#39FF14', fontWeight: 600, marginBottom: '4px' }}>✅ Interview Scheduled</div>
@@ -467,6 +486,89 @@ export default function JobManagement() {
                   opacity: interviewSending ? 0.6 : 1
                 }}>
                 {interviewSending ? 'Sending...' : '📨 Send Invite'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ SEND OFFER LETTER MODAL ═══ */}
+      {showOfferModal && selectedApp && (
+        <div onClick={() => setShowOfferModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 400, background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '480px', maxHeight: '90vh', overflowY: 'auto', background: 'rgba(12,12,12,0.98)', border: '1px solid rgba(57,255,20,0.2)', borderRadius: '20px', boxShadow: '0 0 80px rgba(57,255,20,0.1)', padding: '2rem', position: 'relative' }}>
+            <button onClick={() => setShowOfferModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+
+            <h3 style={{ margin: '0 0 0.3rem', color: '#39FF14', fontSize: '1.1rem' }}>📄 Send Offer Letter</h3>
+            <p style={{ margin: '0 0 1.5rem', fontSize: '0.75rem', opacity: 0.5 }}>
+              Sending to <strong style={{ color: '#fff' }}>{selectedApp.fullName}</strong> for <strong style={{ color: '#00D2FF' }}>{selectedApp.jobTitle}</strong>
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', opacity: 0.5, marginBottom: '6px' }}>Annual Salary / CTC *</label>
+                <input type="text" placeholder="e.g. ₹8,00,000 or ₹12 LPA" value={offerForm.salary} onChange={e => setOfferForm({ ...offerForm, salary: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', fontFamily: 'inherit' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', opacity: 0.5, marginBottom: '6px' }}>Start Date *</label>
+                  <input type="date" value={offerForm.startDate} onChange={e => setOfferForm({ ...offerForm, startDate: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', fontFamily: 'inherit', colorScheme: 'dark' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', opacity: 0.5, marginBottom: '6px' }}>Report To</label>
+                  <input type="text" placeholder="Manager name" value={offerForm.reportTo} onChange={e => setOfferForm({ ...offerForm, reportTo: e.target.value })}
+                    style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', fontFamily: 'inherit' }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', opacity: 0.5, marginBottom: '6px' }}>Additional Terms (optional)</label>
+                <textarea rows="3" placeholder="Any specific terms, conditions, or notes..." value={offerForm.terms} onChange={e => setOfferForm({ ...offerForm, terms: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', fontFamily: 'inherit', resize: 'vertical' }} />
+              </div>
+            </div>
+
+            <div style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '8px', padding: '10px 14px', marginTop: '1rem', fontSize: '0.7rem', opacity: 0.4 }}>
+              💡 The offer letter will automatically include: PrimeCode logo, role overview, compensation breakdown, key perks (flexible work, health, learning fund, PTO), terms, and acceptance signature blocks.
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+              <button onClick={() => setShowOfferModal(false)}
+                style={{ flex: 1, padding: '12px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
+                Cancel
+              </button>
+              <button
+                disabled={offerSending || !offerForm.salary || !offerForm.startDate}
+                onClick={async () => {
+                  setOfferSending(true);
+                  try {
+                    await axios.post(`${API_URL}/careers/send-offer`, {
+                      applicationId: selectedApp.id,
+                      salary: offerForm.salary,
+                      startDate: offerForm.startDate,
+                      reportTo: offerForm.reportTo,
+                      terms: offerForm.terms || undefined
+                    }, { headers });
+                    setSelectedApp({ ...selectedApp, status: 'OFFERED' });
+                    setShowOfferModal(false);
+                    alert('✅ Offer letter sent successfully!');
+                    const r = await axios.get(`${API_URL}/careers/admin/applications`, { headers });
+                    setApplications(r.data);
+                  } catch (err) {
+                    alert('Failed to send offer: ' + (err.response?.data?.error || err.message));
+                  } finally {
+                    setOfferSending(false);
+                  }
+                }}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem',
+                  background: (!offerForm.salary || !offerForm.startDate) ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #39FF14, #00D2FF)',
+                  color: (!offerForm.salary || !offerForm.startDate) ? 'rgba(255,255,255,0.3)' : '#000',
+                  border: 'none', cursor: offerSending ? 'wait' : 'pointer',
+                  boxShadow: (!offerForm.salary || !offerForm.startDate) ? 'none' : '0 4px 20px rgba(57,255,20,0.3)',
+                  opacity: offerSending ? 0.6 : 1
+                }}>
+                {offerSending ? 'Sending...' : '📨 Send Offer Letter'}
               </button>
             </div>
           </div>

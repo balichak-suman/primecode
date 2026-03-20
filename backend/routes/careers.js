@@ -748,6 +748,267 @@ router.post(
   }
 );
 
+// ─────────────────────────────────────────────
+// POST /api/careers/send-offer — Send offer letter email
+// ─────────────────────────────────────────────
+router.post(
+  '/send-offer',
+  authenticateToken,
+  checkRole('ADMIN', 'HR'),
+  async (req, res) => {
+    try {
+      const { applicationId, salary, startDate, reportTo, perks, terms } = req.body;
+
+      if (!applicationId || !salary || !startDate) {
+        return res.status(400).json({ error: 'applicationId, salary, and startDate are required' });
+      }
+
+      const application = await prisma.jobApplication.findUnique({
+        where: { id: parseInt(applicationId) }
+      });
+
+      if (!application) {
+        return res.status(404).json({ error: 'Application not found' });
+      }
+
+      // Update application status to OFFERED
+      const updated = await prisma.jobApplication.update({
+        where: { id: parseInt(applicationId) },
+        data: { status: 'OFFERED' }
+      });
+
+      // Format date
+      const dateObj = new Date(startDate + 'T00:00:00');
+      const formattedStartDate = dateObj.toLocaleDateString('en-IN', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+      const today = new Date().toLocaleDateString('en-IN', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+
+      // Default perks
+      const defaultPerks = [
+        { icon: '🏠', label: 'Flexible / Hybrid Work' },
+        { icon: '🏥', label: 'Health & Wellness' },
+        { icon: '📚', label: 'Continuous Learning Fund' },
+        { icon: '🏖️', label: '25 Days Paid PTO' }
+      ];
+      const perksList = perks && perks.length > 0 ? perks : defaultPerks;
+
+      const perksHtml = perksList.map(p => `
+        <td style="text-align:center; padding:12px 8px; width:25%;">
+          <div style="font-size:24px; margin-bottom:6px;">${p.icon}</div>
+          <div style="color:rgba(255,255,255,0.7); font-size:11px; font-weight:600; line-height:1.3;">${p.label}</div>
+        </td>
+      `).join('');
+
+      const termsText = terms || `Offer acceptance deadline: 7 days from the date of this letter. The company requires completion of background check and professional verification. Please review all terms and conditions before accepting. We look forward to welcoming you to the PrimeCode family.`;
+
+      const emailHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin:0; padding:0; background:#0a0a0a; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a; padding:40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="650" cellpadding="0" cellspacing="0" style="background:#111; border-radius:0; overflow:hidden; border:1px solid rgba(0,210,255,0.12);">
+
+                <!-- ═══ HEADER BAR ═══ -->
+                <tr>
+                  <td style="padding:28px 40px; background:linear-gradient(135deg, #0a0a0a, #111); border-bottom:2px solid #00D2FF;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>
+                          <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:36px;" />
+                        </td>
+                        <td align="right" style="color:rgba(255,255,255,0.4); font-size:11px; letter-spacing:1px;">
+                          www.primecode.in<br/>
+                          <span style="color:rgba(255,255,255,0.25);">Welcome to the future of tech.</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- ═══ DECORATIVE GEOMETRIC ACCENT ═══ -->
+                <tr>
+                  <td style="height:6px; background: linear-gradient(90deg, #00D2FF 0%, #7928CA 50%, #00D2FF 100%);"></td>
+                </tr>
+
+                <!-- ═══ TITLE ═══ -->
+                <tr>
+                  <td style="padding:40px 40px 24px;">
+                    <h1 style="margin:0 0 8px; font-size:28px; font-weight:800; color:#fff; letter-spacing:1px;">OFFER OF EMPLOYMENT</h1>
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="background:rgba(0,210,255,0.1); border:1px solid rgba(0,210,255,0.2); border-radius:6px; padding:6px 14px;">
+                          <span style="color:#00D2FF; font-size:12px; font-weight:600;">${application.fullName}</span>
+                        </td>
+                        <td style="padding-left:12px;">
+                          <span style="color:rgba(255,255,255,0.4); font-size:12px;">Date: ${today}</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- ═══ GREETING ═══ -->
+                <tr>
+                  <td style="padding:0 40px 24px;">
+                    <p style="color:rgba(255,255,255,0.85); font-size:15px; line-height:1.7; margin:0;">
+                      Dear <strong style="color:#fff;">${application.fullName}</strong>,
+                    </p>
+                    <p style="color:rgba(255,255,255,0.7); font-size:14px; line-height:1.7; margin:12px 0 0;">
+                      Congratulations! We are thrilled to formally offer you the position of <strong style="color:#00D2FF;">${application.jobTitle || 'the open position'}</strong> at 
+                      <strong style="color:#fff;">PrimeCode Solutions</strong>. We are impressed by your skills and potential, and we are confident you will be a vital asset to our team.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- ═══ ROLE OVERVIEW ═══ -->
+                <tr>
+                  <td style="padding:0 40px 24px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(0,210,255,0.04); border:1px solid rgba(0,210,255,0.1); border-radius:12px;">
+                      <tr>
+                        <td style="padding:20px 24px;">
+                          <div style="display:flex; align-items:center; margin-bottom:14px;">
+                            <span style="font-size:18px; margin-right:8px;">📋</span>
+                            <span style="color:#00D2FF; font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Role Overview</span>
+                          </div>
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="padding:6px 0; color:rgba(255,255,255,0.5); font-size:12px; width:40%;">Department</td>
+                              <td style="padding:6px 0; color:#fff; font-size:13px; font-weight:600;">${application.department || 'Engineering'}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding:6px 0; color:rgba(255,255,255,0.5); font-size:12px; border-top:1px solid rgba(255,255,255,0.04);">Report To</td>
+                              <td style="padding:6px 0; color:#fff; font-size:13px; font-weight:600; border-top:1px solid rgba(255,255,255,0.04);">${reportTo || 'Team Lead'}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding:6px 0; color:rgba(255,255,255,0.5); font-size:12px; border-top:1px solid rgba(255,255,255,0.04);">Start Date</td>
+                              <td style="padding:6px 0; color:#fff; font-size:13px; font-weight:600; border-top:1px solid rgba(255,255,255,0.04);">${formattedStartDate}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- ═══ COMPENSATION ═══ -->
+                <tr>
+                  <td style="padding:0 40px 24px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(121,40,202,0.06); border:1px solid rgba(121,40,202,0.15); border-radius:12px;">
+                      <tr>
+                        <td style="padding:20px 24px;">
+                          <div style="display:flex; align-items:center; margin-bottom:14px;">
+                            <span style="font-size:18px; margin-right:8px;">💰</span>
+                            <span style="color:#B06FFF; font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Compensation & Benefits</span>
+                          </div>
+                          <p style="color:rgba(255,255,255,0.75); font-size:13px; line-height:1.6; margin:0;">
+                            <strong style="color:#fff;">Base Salary:</strong> <span style="color:#00D2FF; font-weight:700; font-size:15px;">${salary}</span> per annum, 
+                            eligible for annual performance bonus of up to 15% of CTC.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- ═══ KEY PERKS ═══ -->
+                <tr>
+                  <td style="padding:0 40px 24px;">
+                    <div style="margin-bottom:12px;">
+                      <span style="font-size:16px; margin-right:6px;">🎁</span>
+                      <span style="color:#FFD700; font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Key Perks</span>
+                    </div>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(255,215,0,0.04); border:1px solid rgba(255,215,0,0.1); border-radius:12px;">
+                      <tr>
+                        ${perksHtml}
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- ═══ TERMS ═══ -->
+                <tr>
+                  <td style="padding:0 40px 24px;">
+                    <div style="margin-bottom:10px;">
+                      <span style="font-size:16px; margin-right:6px;">📝</span>
+                      <span style="color:rgba(255,255,255,0.6); font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Terms</span>
+                    </div>
+                    <p style="color:rgba(255,255,255,0.5); font-size:12px; line-height:1.7; margin:0; padding:16px; background:rgba(255,255,255,0.02); border-radius:8px; border:1px solid rgba(255,255,255,0.04);">
+                      ${termsText}
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- ═══ ACCEPTANCE ═══ -->
+                <tr>
+                  <td style="padding:0 40px 32px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="width:50%; padding-right:12px;">
+                          <div style="color:rgba(255,255,255,0.4); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Acceptance</div>
+                          <div style="border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px; margin-bottom:6px; min-height:24px;"></div>
+                          <div style="color:rgba(255,255,255,0.5); font-size:11px;">Candidate Signature</div>
+                          <div style="color:rgba(255,255,255,0.3); font-size:10px;">Date, Print Name</div>
+                        </td>
+                        <td style="width:50%; padding-left:12px;">
+                          <div style="color:rgba(255,255,255,0.4); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">PrimeCode Solutions</div>
+                          <div style="border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px; margin-bottom:6px; min-height:24px;"></div>
+                          <div style="color:rgba(255,255,255,0.5); font-size:11px;">Hiring Manager Signature</div>
+                          <div style="color:rgba(255,255,255,0.3); font-size:10px;">Date, Title</div>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- ═══ FOOTER ═══ -->
+                <tr>
+                  <td style="background:linear-gradient(135deg, rgba(0,210,255,0.08), rgba(121,40,202,0.08)); padding:20px 40px; border-top:1px solid rgba(0,210,255,0.1);">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>
+                          <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:24px; opacity:0.6;" />
+                          <div style="color:rgba(255,255,255,0.3); font-size:10px; margin-top:4px;">www.primecode.in</div>
+                        </td>
+                        <td align="right" style="color:rgba(255,255,255,0.3); font-size:11px; font-style:italic;">
+                          Welcome to the future of tech.
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+      `;
+
+      await sendBrevoEmail(
+        application.email,
+        `Offer of Employment – ${application.jobTitle || 'Open Position'} at PrimeCode Solutions`,
+        emailHtml
+      );
+
+      console.log(`[CAREERS] Offer letter sent for application #${applicationId} → ${application.email} by ${req.user.name}`);
+      res.json({ success: true, application: updated });
+    } catch (error) {
+      console.error('POST /careers/send-offer error:', error);
+      res.status(500).json({ error: 'Failed to send offer letter' });
+    }
+  }
+);
+
 // Multer error handler
 router.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
