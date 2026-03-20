@@ -487,6 +487,7 @@ enum ApplicationStatus {
   NEW
   REVIEWED
   SHORTLISTED
+  INTERVIEW
   INTERVIEWED
   OFFERED
   REJECTED
@@ -544,6 +545,10 @@ model JobApplication {
   reviewer           User?             @relation("ReviewedApplications", fields: [reviewedBy], references: [id])
   reviewNotes        String?
   rating             Int?
+  interviewDate      String?
+  interviewTime      String?
+  interviewLink      String?
+  interviewStatus    String?           @default("PENDING")
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 }

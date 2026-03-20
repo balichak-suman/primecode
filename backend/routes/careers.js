@@ -591,6 +591,163 @@ router.patch('/admin/applications/:id/status', adminAuth,
   }
 );
 
+// ─────────────────────────────────────────────
+// POST /api/careers/schedule-interview — Send interview invite email
+// ─────────────────────────────────────────────
+router.post(
+  '/schedule-interview',
+  authenticateToken,
+  checkRole('ADMIN', 'HR'),
+  async (req, res) => {
+    try {
+      const { applicationId, interviewDate, interviewTime, interviewLink } = req.body;
+
+      if (!applicationId || !interviewDate || !interviewTime || !interviewLink) {
+        return res.status(400).json({ error: 'All fields are required: applicationId, interviewDate, interviewTime, interviewLink' });
+      }
+
+      // Fetch the application
+      const application = await prisma.jobApplication.findUnique({
+        where: { id: parseInt(applicationId) }
+      });
+
+      if (!application) {
+        return res.status(404).json({ error: 'Application not found' });
+      }
+
+      // Update the application with interview details
+      const updated = await prisma.jobApplication.update({
+        where: { id: parseInt(applicationId) },
+        data: {
+          interviewDate,
+          interviewTime,
+          interviewLink,
+          interviewStatus: 'SCHEDULED',
+          status: 'INTERVIEW'
+        }
+      });
+
+      // Format the date nicely
+      const dateObj = new Date(interviewDate + 'T00:00:00');
+      const formattedDate = dateObj.toLocaleDateString('en-IN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      // Send professional interview email to candidate
+      const emailHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin:0; padding:0; background:#0a0a0a; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a; padding:40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="background:#111; border-radius:16px; border:1px solid rgba(0,210,255,0.15); overflow:hidden;">
+                
+                <!-- Header -->
+                <tr>
+                  <td style="background:linear-gradient(135deg, rgba(0,210,255,0.1), rgba(121,40,202,0.1)); padding:32px 40px; text-align:center; border-bottom:1px solid rgba(0,210,255,0.1);">
+                    <h1 style="margin:0; font-size:24px; font-weight:800; color:#00D2FF; letter-spacing:2px;">PRIMECODE</h1>
+                    <p style="margin:8px 0 0; color:rgba(255,255,255,0.5); font-size:13px; letter-spacing:1px;">INTERVIEW INVITATION</p>
+                  </td>
+                </tr>
+
+                <!-- Body -->
+                <tr>
+                  <td style="padding:40px;">
+                    <p style="color:rgba(255,255,255,0.85); font-size:16px; line-height:1.6; margin:0 0 24px;">
+                      Hi <strong style="color:#fff;">${application.fullName}</strong>,
+                    </p>
+                    <p style="color:rgba(255,255,255,0.7); font-size:15px; line-height:1.7; margin:0 0 32px;">
+                      We're excited to move forward with your application for <strong style="color:#00D2FF;">${application.jobTitle || 'the open position'}</strong>! We'd like to invite you for an interview.
+                    </p>
+
+                    <!-- Interview Details Card -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(0,210,255,0.04); border:1px solid rgba(0,210,255,0.12); border-radius:12px; margin-bottom:32px;">
+                      <tr>
+                        <td style="padding:24px 28px;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td style="padding:8px 0;">
+                                <span style="color:rgba(255,255,255,0.4); font-size:12px; text-transform:uppercase; letter-spacing:1px;">📅 Date</span><br/>
+                                <span style="color:#fff; font-size:16px; font-weight:600;">${formattedDate}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding:8px 0; border-top:1px solid rgba(255,255,255,0.06);">
+                                <span style="color:rgba(255,255,255,0.4); font-size:12px; text-transform:uppercase; letter-spacing:1px;">🕐 Time</span><br/>
+                                <span style="color:#fff; font-size:16px; font-weight:600;">${interviewTime} IST</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding:8px 0; border-top:1px solid rgba(255,255,255,0.06);">
+                                <span style="color:rgba(255,255,255,0.4); font-size:12px; text-transform:uppercase; letter-spacing:1px;">💼 Position</span><br/>
+                                <span style="color:#fff; font-size:16px; font-weight:600;">${application.jobTitle || 'Open Position'}${application.department ? ' — ' + application.department : ''}</span>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Join Button -->
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" style="padding:0 0 32px;">
+                          <a href="${interviewLink}" target="_blank" style="display:inline-block; background:linear-gradient(135deg, #00D2FF, #7928CA); color:#fff; font-size:16px; font-weight:700; text-decoration:none; padding:14px 40px; border-radius:10px; letter-spacing:0.5px;">
+                            🔗 Join Interview
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="color:rgba(255,255,255,0.5); font-size:13px; line-height:1.6; margin:0;">
+                      Please ensure you join the meeting a few minutes early. If you have any questions or need to reschedule, please reply to this email.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="padding:20px 40px; border-top:1px solid rgba(255,255,255,0.06); text-align:center;">
+                    <p style="margin:0; color:rgba(255,255,255,0.3); font-size:12px;">
+                      Best regards,<br/><strong style="color:rgba(255,255,255,0.5);">PrimeCode HR Team</strong>
+                    </p>
+                    <p style="margin:12px 0 0; color:rgba(255,255,255,0.2); font-size:11px;">
+                      © ${new Date().getFullYear()} PrimeCode Solutions. All rights reserved.
+                    </p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+      `;
+
+      await sendBrevoEmail(
+        application.email,
+        `Interview Scheduled – ${application.jobTitle || 'Open Position'} at PrimeCode`,
+        emailHtml
+      );
+
+      console.log(`[CAREERS] Interview scheduled for application #${applicationId} → ${application.email} by ${req.user.name}`);
+      res.json({ success: true, application: updated });
+    } catch (error) {
+      console.error('POST /careers/schedule-interview error:', error);
+      res.status(500).json({ error: 'Failed to schedule interview' });
+    }
+  }
+);
+
 // Multer error handler
 router.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {

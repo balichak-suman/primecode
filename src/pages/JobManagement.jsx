@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import { API_URL } from '../config/api';
 const STATUS_COLORS = { ACTIVE: '#39FF14', PAUSED: '#FFD700', CLOSED: '#ff3366' };
-const APP_STATUS_COLORS = { NEW: '#00D2FF', REVIEWED: '#7928CA', SHORTLISTED: '#FFD700', INTERVIEWED: '#00DFD8', OFFERED: '#39FF14', REJECTED: '#ff3366', WITHDRAWN: 'rgba(255,255,255,0.3)' };
+const APP_STATUS_COLORS = { NEW: '#00D2FF', REVIEWED: '#7928CA', SHORTLISTED: '#FFD700', INTERVIEW: '#FF6B35', INTERVIEWED: '#00DFD8', OFFERED: '#39FF14', REJECTED: '#ff3366', WITHDRAWN: 'rgba(255,255,255,0.3)' };
 
 export default function JobManagement() {
   const navigate = useNavigate();
@@ -16,6 +16,11 @@ export default function JobManagement() {
   const [statusFilter, setStatusFilter] = useState('');
   const [deptFilter, setDeptFilter] = useState('');
   const [jobFilter, setJobFilter] = useState('');
+
+  // Interview scheduling state
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [interviewForm, setInterviewForm] = useState({ date: '', time: '', link: '' });
+  const [interviewSending, setInterviewSending] = useState(false);
 
   const [showJobModal, setShowJobModal] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
@@ -292,6 +297,28 @@ export default function JobManagement() {
                   </div>
                 )}
 
+                {/* Schedule Interview Button */}
+                <button
+                  onClick={() => { setInterviewForm({ date: '', time: '', link: '' }); setShowInterviewModal(true); }}
+                  style={{
+                    width: '100%', padding: '10px 16px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600,
+                    cursor: 'pointer', border: '1px solid rgba(0,210,255,0.3)', marginBottom: '1.2rem',
+                    background: 'linear-gradient(135deg, rgba(0,210,255,0.12), rgba(121,40,202,0.12))',
+                    color: '#00D2FF', letterSpacing: '0.5px',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  📧 Schedule Interview
+                </button>
+
+                {selectedApp.interviewStatus === 'SCHEDULED' && (
+                  <div style={{ background: 'rgba(57,255,20,0.06)', border: '1px solid rgba(57,255,20,0.15)', borderRadius: '10px', padding: '10px 14px', marginBottom: '1.2rem', fontSize: '0.75rem' }}>
+                    <div style={{ color: '#39FF14', fontWeight: 600, marginBottom: '4px' }}>✅ Interview Scheduled</div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)' }}>📅 {selectedApp.interviewDate} · 🕐 {selectedApp.interviewTime}</div>
+                    <a href={selectedApp.interviewLink} target="_blank" rel="noopener" style={{ color: '#00D2FF', fontSize: '0.7rem' }}>🔗 Meeting Link</a>
+                  </div>
+                )}
+
                 {/* Status Buttons */}
                 <div style={{ fontSize: '0.65rem', opacity: 0.4, textTransform: 'uppercase', marginBottom: '6px' }}>Update Status</div>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -369,6 +396,79 @@ export default function JobManagement() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ SCHEDULE INTERVIEW MODAL ═══ */}
+      {showInterviewModal && selectedApp && (
+        <div onClick={() => setShowInterviewModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 400, background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '420px', background: 'rgba(12,12,12,0.98)', border: '1px solid rgba(0,210,255,0.25)', borderRadius: '20px', boxShadow: '0 0 80px rgba(0,210,255,0.15)', padding: '2rem', position: 'relative' }}>
+            <button onClick={() => setShowInterviewModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+
+            <h3 style={{ margin: '0 0 0.3rem', color: '#00D2FF', fontSize: '1.1rem' }}>📧 Schedule Interview</h3>
+            <p style={{ margin: '0 0 1.5rem', fontSize: '0.75rem', opacity: 0.5 }}>
+              Sending to <strong style={{ color: '#fff' }}>{selectedApp.fullName}</strong> ({selectedApp.email})
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', opacity: 0.5, marginBottom: '6px' }}>Interview Date *</label>
+                <input type="date" value={interviewForm.date} onChange={e => setInterviewForm({ ...interviewForm, date: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', fontFamily: 'inherit', colorScheme: 'dark' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', opacity: 0.5, marginBottom: '6px' }}>Interview Time *</label>
+                <input type="time" value={interviewForm.time} onChange={e => setInterviewForm({ ...interviewForm, time: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', fontFamily: 'inherit', colorScheme: 'dark' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', opacity: 0.5, marginBottom: '6px' }}>Meeting Link * (Google Meet / Zoom / Teams)</label>
+                <input type="url" placeholder="https://meet.google.com/abc-xyz" value={interviewForm.link} onChange={e => setInterviewForm({ ...interviewForm, link: e.target.value })}
+                  style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', outline: 'none', fontFamily: 'inherit' }} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+              <button onClick={() => setShowInterviewModal(false)}
+                style={{ flex: 1, padding: '12px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
+                Cancel
+              </button>
+              <button
+                disabled={interviewSending || !interviewForm.date || !interviewForm.time || !interviewForm.link}
+                onClick={async () => {
+                  setInterviewSending(true);
+                  try {
+                    await axios.post(`${API_URL}/careers/schedule-interview`, {
+                      applicationId: selectedApp.id,
+                      interviewDate: interviewForm.date,
+                      interviewTime: interviewForm.time,
+                      interviewLink: interviewForm.link
+                    }, { headers });
+                    // Refresh application data
+                    setSelectedApp({ ...selectedApp, interviewDate: interviewForm.date, interviewTime: interviewForm.time, interviewLink: interviewForm.link, interviewStatus: 'SCHEDULED', status: 'INTERVIEW' });
+                    setShowInterviewModal(false);
+                    alert('✅ Interview invitation sent successfully!');
+                    // Refresh the applications list
+                    const r = await axios.get(`${API_URL}/careers/admin/applications`, { headers });
+                    setApplications(r.data);
+                  } catch (err) {
+                    alert('Failed to schedule interview: ' + (err.response?.data?.error || err.message));
+                  } finally {
+                    setInterviewSending(false);
+                  }
+                }}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem',
+                  background: (!interviewForm.date || !interviewForm.time || !interviewForm.link) ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #00D2FF, #7928CA)',
+                  color: (!interviewForm.date || !interviewForm.time || !interviewForm.link) ? 'rgba(255,255,255,0.3)' : '#fff',
+                  border: 'none', cursor: interviewSending ? 'wait' : 'pointer',
+                  boxShadow: (!interviewForm.date || !interviewForm.time || !interviewForm.link) ? 'none' : '0 4px 20px rgba(0,210,255,0.3)',
+                  opacity: interviewSending ? 0.6 : 1
+                }}>
+                {interviewSending ? 'Sending...' : '📨 Send Invite'}
+              </button>
+            </div>
           </div>
         </div>
       )}
