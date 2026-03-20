@@ -802,217 +802,195 @@ router.post(
 
       const termsText = terms || 'Offer acceptance deadline: 7 days from the date of this letter. The company reserves the right to conduct background checks and professional verification. Please review all terms and conditions before accepting. We look forward to welcoming you to the PrimeCode family.';
 
-      // Read logo and signature as base64
+      // Read logo and signature as buffers for pdfkit
       const logoPath = path.resolve('templates/logo.png');
       const signaturePath = path.resolve('templates/signature.png');
-      const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
-      const signatureBase64 = fs.existsSync(signaturePath) ? fs.readFileSync(signaturePath).toString('base64') : '';
-      const logoDataUri = logoBase64 ? `data:image/png;base64,${logoBase64}` : 'https://primecode.in/logo.png';
-      const signatureDataUri = signatureBase64 ? `data:image/png;base64,${signatureBase64}` : '';
+      const logoBuffer = fs.existsSync(logoPath) ? fs.readFileSync(logoPath) : null;
+      const signatureBuffer = fs.existsSync(signaturePath) ? fs.readFileSync(signaturePath) : null;
 
-      // ═══ PDF HTML TEMPLATE ═══
-      const pdfHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Inter', sans-serif; background: #fff; color: #1a1a2e; }
-          .page { width: 210mm; min-height: 297mm; margin: 0 auto; position: relative; padding: 50px 50px 40px; overflow: hidden; }
-          
-          /* ═══ GEOMETRIC BORDER DECORATIONS ═══ */
-          .geo-top-left { position: absolute; top: 0; left: 0; width: 160px; height: 140px; }
-          .geo-top-right { position: absolute; top: 0; right: 0; width: 120px; height: 120px; }
-          .geo-bottom-left { position: absolute; bottom: 0; left: 0; width: 140px; height: 100px; }
-          .geo-bottom-right { position: absolute; bottom: 0; right: 0; width: 200px; height: 130px; }
-          
-          .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; position: relative; z-index: 2; }
-          .header img { height: 42px; }
-          .header-right { text-align: right; font-size: 10px; color: #666; }
-          
-          h1 { font-size: 28px; font-weight: 800; color: #1a1a2e; letter-spacing: 1px; margin: 20px 0 12px; border-bottom: 3px solid #0891b2; padding-bottom: 8px; display: inline-block; }
-          .candidate-info { font-size: 13px; color: #444; margin-bottom: 6px; }
-          .greeting { font-size: 14px; line-height: 1.7; color: #333; margin: 16px 0 20px; }
-          .greeting strong { color: #0891b2; }
-          
-          .section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-          .section-title span.icon { font-size: 20px; }
-          .section-title span.label { font-size: 15px; font-weight: 700; color: #0891b2; text-transform: uppercase; letter-spacing: 1px; }
-          
-          .role-card { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; }
-          .role-row { display: flex; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #e0f2fe; }
-          .role-row:last-child { border-bottom: none; }
-          .role-label { width: 35%; color: #666; font-weight: 600; }
-          .role-value { color: #1a1a2e; font-weight: 600; }
-          
-          .comp-card { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; }
-          .comp-card .salary { color: #0891b2; font-weight: 700; font-size: 16px; }
-          
-          .perks-grid { display: flex; gap: 12px; margin-bottom: 20px; }
-          .perk-box { flex: 1; text-align: center; background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 10px; padding: 14px 8px; }
-          .perk-box .perk-icon { font-size: 26px; margin-bottom: 6px; }
-          .perk-box .perk-label { font-size: 10px; font-weight: 600; color: #444; line-height: 1.3; }
-          
-          .terms-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; font-size: 11px; line-height: 1.7; color: #555; margin-bottom: 24px; }
-          
-          .acceptance { display: flex; gap: 40px; margin-bottom: 20px; }
-          .accept-col { flex: 1; }
-          .accept-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #1a1a2e; margin-bottom: 8px; }
-          .accept-line { border-bottom: 1px solid #cbd5e1; min-height: 40px; margin-bottom: 4px; display: flex; align-items: flex-end; }
-          .accept-label { font-size: 10px; color: #888; }
-          .signature-img { height: 40px; margin-bottom: 0; }
-          
-          .footer { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 2px solid #e2e8f0; position: relative; z-index: 2; }
-          .footer img { height: 24px; opacity: 0.7; }
-          .footer-left { font-size: 10px; color: #888; }
-          .footer-right { font-size: 11px; color: #888; font-style: italic; }
-        </style>
-      </head>
-      <body>
-        <div class="page">
-          <!-- ═══ GEOMETRIC DECORATIONS ═══ -->
-          <svg class="geo-top-left" viewBox="0 0 160 140" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0" y="0" width="50" height="50" fill="#0891b2" opacity="0.8"/>
-            <rect x="55" y="0" width="35" height="35" fill="#f97316" opacity="0.7"/>
-            <polygon points="0,55 50,55 0,105" fill="#0891b2" opacity="0.3"/>
-            <rect x="55" y="40" width="25" height="25" fill="#0891b2" opacity="0.15"/>
-            <polygon points="95,0 160,0 160,65" fill="#94a3b8" opacity="0.12"/>
-            <circle cx="110" cy="45" r="18" fill="#f97316" opacity="0.15"/>
-            <rect x="0" y="110" width="40" height="30" fill="#0891b2" opacity="0.12"/>
-          </svg>
-          
-          <svg class="geo-top-right" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="40,0 120,0 120,80" fill="#94a3b8" opacity="0.15"/>
-            <circle cx="90" cy="30" r="25" fill="#0891b2" opacity="0.12"/>
-            <rect x="70" y="60" width="50" height="30" fill="#f97316" opacity="0.2"/>
-            <polygon points="0,0 40,0 40,40" fill="#0891b2" opacity="0.1"/>
-          </svg>
-          
-          <svg class="geo-bottom-left" viewBox="0 0 140 100" xmlns="http://www.w3.org/2000/svg">
-            <rect x="0" y="60" width="60" height="40" fill="#0891b2" opacity="0.8"/>
-            <polygon points="65,100 65,50 115,100" fill="#f97316" opacity="0.6"/>
-            <polygon points="0,40 40,40 0,80" fill="#94a3b8" opacity="0.2"/>
-            <rect x="120" y="70" width="20" height="30" fill="#0891b2" opacity="0.15"/>
-          </svg>
-          
-          <svg class="geo-bottom-right" viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="100,130 200,130 200,30" fill="#0891b2" opacity="0.15"/>
-            <polygon points="130,130 180,130 180,80" fill="#f97316" opacity="0.5"/>
-            <rect x="60" y="90" width="40" height="40" fill="#0891b2" opacity="0.7"/>
-            <polygon points="50,130 100,130 100,80" fill="#94a3b8" opacity="0.2"/>
-            <rect x="160" y="50" width="30" height="30" fill="#0891b2" opacity="0.2"/>
-          </svg>
-          
-          <!-- ═══ HEADER ═══ -->
-          <div class="header">
-            <img src="${logoDataUri}" alt="PrimeCode" />
-            <div class="header-right">
-              www.primecode.in<br/>
-              <span style="color:#999;">Welcome to the future of tech.</span>
-            </div>
-          </div>
-          
-          <!-- ═══ TITLE ═══ -->
-          <h1>OFFER OF EMPLOYMENT</h1>
-          <div class="candidate-info">[${application.fullName}]</div>
-          <div class="candidate-info" style="color:#888;">[Date: ${today}]</div>
-          
-          <!-- ═══ GREETING ═══ -->
-          <div class="greeting">
-            Dear <strong>${application.fullName}</strong>,<br/><br/>
-            Congratulations! We are thrilled to formally offer you the position of <strong>${application.jobTitle || 'the open position'}</strong> at 
-            <strong style="color:#1a1a2e;">PrimeCode Solutions</strong>. We are impressed by your skills and potential, and we are confident you will be a vital asset to our team.
-          </div>
-          
-          <!-- ═══ ROLE OVERVIEW ═══ -->
-          <div class="section-title">
-            <span class="icon">📋</span>
-            <span class="label">Role Overview:</span>
-          </div>
-          <div class="role-card">
-            <div class="role-row"><span class="role-label">Department:</span><span class="role-value">${application.department || 'Engineering'}</span></div>
-            <div class="role-row"><span class="role-label">Report To:</span><span class="role-value">${reportTo || 'Team Lead'}</span></div>
-            <div class="role-row"><span class="role-label">Start Date:</span><span class="role-value">${formattedStartDate}</span></div>
-          </div>
-          
-          <!-- ═══ COMPENSATION ═══ -->
-          <div class="section-title">
-            <span class="icon">💰</span>
-            <span class="label">Compensation & Benefits:</span>
-          </div>
-          <div class="comp-card">
-            <strong>Base Salary:</strong> <span class="salary">${salary}</span> per year, paid monthly. Eligible for annual performance bonus of up to 15% of CTC.
-          </div>
-          
-          <!-- ═══ KEY PERKS ═══ -->
-          <div class="section-title">
-            <span class="icon">🎁</span>
-            <span class="label">Key Perks:</span>
-          </div>
-          <div class="perks-grid">
-            <div class="perk-box"><div class="perk-icon">🏠</div><div class="perk-label">Fully Remote/Hybrid<br/>Flexibility</div></div>
-            <div class="perk-box"><div class="perk-icon">🏥</div><div class="perk-label">Comprehensive<br/>Health & Wellness</div></div>
-            <div class="perk-box"><div class="perk-icon">📚</div><div class="perk-label">Continuous<br/>Learning Fund</div></div>
-            <div class="perk-box"><div class="perk-icon">🚀</div><div class="perk-label">Career Growth<br/>Opportunities</div></div>
-          </div>
-          
-          <!-- ═══ TERMS ═══ -->
-          <div class="section-title">
-            <span class="icon">📝</span>
-            <span class="label">Terms:</span>
-          </div>
-          <div class="terms-box">${termsText}</div>
-          
-          <!-- ═══ ACCEPTANCE ═══ -->
-          <div class="acceptance">
-            <div class="accept-col">
-              <div class="accept-title">Acceptance:</div>
-              <div class="accept-line"></div>
-              <div class="accept-label">Candidate Signature</div>
-              <div class="accept-label">Date, Print Name</div>
-            </div>
-            <div class="accept-col">
-              <div class="accept-title">PrimeCode Solutions:</div>
-              <div class="accept-line">
-                ${signatureDataUri ? `<img src="${signatureDataUri}" class="signature-img" alt="Signature" />` : ''}
-              </div>
-              <div class="accept-label"><strong style="color:#1a1a2e;">Balichak Suman</strong></div>
-              <div class="accept-label">Founder & CEO</div>
-            </div>
-          </div>
-          
-          <!-- ═══ FOOTER ═══ -->
-          <div class="footer">
-            <div>
-              <img src="${logoDataUri}" alt="PrimeCode" />
-              <div class="footer-left">www.primecode.in</div>
-            </div>
-            <div class="footer-right">Welcome to the future of tech.</div>
-          </div>
-        </div>
-      </body>
-      </html>
-      `;
+      // ═══ GENERATE PDF WITH PDFKIT ═══
+      const PDFDocument = (await import('pdfkit')).default;
 
-      // ═══ GENERATE PDF WITH PUPPETEER ═══
-      const puppeteer = (await import('puppeteer')).default;
-      const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      const pdfBase64 = await new Promise((resolve, reject) => {
+        const doc = new PDFDocument({ size: 'A4', margin: 50 });
+        const chunks = [];
+        doc.on('data', chunk => chunks.push(chunk));
+        doc.on('end', () => resolve(Buffer.concat(chunks).toString('base64')));
+        doc.on('error', reject);
+
+        const W = doc.page.width;
+        const H = doc.page.height;
+        const M = 50; // margin
+        const CW = W - M * 2; // content width
+
+        // ═══ GEOMETRIC BORDER DECORATIONS ═══
+        // Top-left
+        doc.rect(0, 0, 50, 50).fill('#0891b2');
+        doc.rect(55, 0, 35, 35).fill('#f97316');
+        doc.save().opacity(0.3);
+        doc.polygon([0, 55], [50, 55], [0, 105]).fill('#0891b2');
+        doc.restore();
+        doc.save().opacity(0.15);
+        doc.rect(55, 40, 25, 25).fill('#0891b2');
+        doc.circle(110, 45, 18).fill('#f97316');
+        doc.restore();
+        doc.save().opacity(0.12);
+        doc.polygon([95, 0], [160, 0], [160, 65]).fill('#94a3b8');
+        doc.rect(0, 110, 40, 30).fill('#0891b2');
+        doc.restore();
+
+        // Top-right
+        doc.save().opacity(0.15);
+        doc.polygon([W - 80, 0], [W, 0], [W, 80]).fill('#94a3b8');
+        doc.circle(W - 30, 30, 25).fill('#0891b2');
+        doc.restore();
+        doc.save().opacity(0.2);
+        doc.rect(W - 50, 60, 50, 30).fill('#f97316');
+        doc.restore();
+
+        // Bottom-left
+        doc.rect(0, H - 40, 60, 40).fill('#0891b2');
+        doc.save().opacity(0.6);
+        doc.polygon([65, H], [65, H - 50], [115, H]).fill('#f97316');
+        doc.restore();
+        doc.save().opacity(0.2);
+        doc.polygon([0, H - 60], [40, H - 60], [0, H - 20]).fill('#94a3b8');
+        doc.restore();
+
+        // Bottom-right
+        doc.save().opacity(0.15);
+        doc.polygon([W - 100, H], [W, H], [W, H - 100]).fill('#0891b2');
+        doc.restore();
+        doc.save().opacity(0.5);
+        doc.polygon([W - 70, H], [W - 20, H], [W - 20, H - 50]).fill('#f97316');
+        doc.restore();
+        doc.rect(W - 140, H - 40, 40, 40).fill('#0891b2');
+
+        let y = M;
+
+        // ═══ HEADER ═══
+        if (logoBuffer) {
+          doc.image(logoBuffer, M, y, { height: 30 });
+        }
+        doc.fontSize(9).fillColor('#888').text('www.primecode.in', M, y, { width: CW, align: 'right' });
+        doc.fontSize(8).fillColor('#aaa').text('Welcome to the future of tech.', M, y + 12, { width: CW, align: 'right' });
+        y += 45;
+
+        // ═══ TITLE ═══
+        doc.fontSize(26).fillColor('#1a1a2e').font('Helvetica-Bold').text('OFFER OF EMPLOYMENT', M, y);
+        y += 35;
+        // Underline
+        doc.moveTo(M, y).lineTo(M + 220, y).lineWidth(3).strokeColor('#0891b2').stroke();
+        y += 14;
+
+        // Candidate info
+        doc.fontSize(12).fillColor('#444').font('Helvetica').text(`[${application.fullName}]`, M, y);
+        y += 18;
+        doc.fontSize(11).fillColor('#888').text(`[Date: ${today}]`, M, y);
+        y += 28;
+
+        // ═══ GREETING ═══
+        doc.fontSize(12).fillColor('#333').font('Helvetica');
+        doc.text('Dear ', M, y, { continued: true });
+        doc.font('Helvetica-Bold').fillColor('#0891b2').text(application.fullName, { continued: true });
+        doc.font('Helvetica').fillColor('#333').text(',');
+        y += 22;
+        doc.fontSize(11).fillColor('#444').text(
+          'Congratulations! We are thrilled to formally offer you the position of ' +
+          (application.jobTitle || 'the open position') +
+          ' at PrimeCode Solutions. We are impressed by your skills and potential, and we are confident you will be a vital asset to our team.',
+          M, y, { width: CW, lineGap: 3 }
+        );
+        y = doc.y + 20;
+
+        // ═══ ROLE OVERVIEW ═══
+        doc.fontSize(13).fillColor('#0891b2').font('Helvetica-Bold').text('📋  ROLE OVERVIEW:', M, y);
+        y += 20;
+        // Card background
+        doc.roundedRect(M, y, CW, 70, 8).fillAndStroke('#f0f9ff', '#bae6fd');
+        const roleY = y + 12;
+        doc.fontSize(10).fillColor('#666').font('Helvetica-Bold');
+        doc.text('Department:', M + 16, roleY);
+        doc.fillColor('#1a1a2e').text(application.department || 'Engineering', M + 120, roleY);
+        doc.fillColor('#666').text('Report To:', M + 16, roleY + 20);
+        doc.fillColor('#1a1a2e').text(reportTo || 'Team Lead', M + 120, roleY + 20);
+        doc.fillColor('#666').text('Start Date:', M + 16, roleY + 40);
+        doc.fillColor('#1a1a2e').text(formattedStartDate, M + 120, roleY + 40);
+        y += 82;
+
+        // ═══ COMPENSATION ═══
+        doc.fontSize(13).fillColor('#7c3aed').font('Helvetica-Bold').text('💰  COMPENSATION & BENEFITS:', M, y);
+        y += 20;
+        doc.roundedRect(M, y, CW, 45, 8).fillAndStroke('#faf5ff', '#e9d5ff');
+        doc.fontSize(10).fillColor('#333').font('Helvetica');
+        doc.text('Base Salary: ', M + 16, y + 14, { continued: true });
+        doc.font('Helvetica-Bold').fillColor('#0891b2').text(salary, { continued: true });
+        doc.font('Helvetica').fillColor('#333').text(' per year, paid monthly.');
+        doc.fontSize(9).fillColor('#666').text('Eligible for annual performance bonus of up to 15% of CTC.', M + 16, y + 30);
+        y += 58;
+
+        // ═══ KEY PERKS ═══
+        doc.fontSize(13).fillColor('#b45309').font('Helvetica-Bold').text('🎁  KEY PERKS:', M, y);
+        y += 20;
+        const perks = [
+          { icon: '🏠', label: 'Flexible / Hybrid\\nWork' },
+          { icon: '🏥', label: 'Health &\\nWellness' },
+          { icon: '📚', label: 'Continuous\\nLearning Fund' },
+          { icon: '🚀', label: 'Career Growth\\nOpportunities' }
+        ];
+        const perkW = (CW - 30) / 4;
+        perks.forEach((p, i) => {
+          const px = M + i * (perkW + 10);
+          doc.roundedRect(px, y, perkW, 55, 6).fillAndStroke('#f0fdfa', '#ccfbf1');
+          doc.fontSize(16).text(p.icon, px, y + 6, { width: perkW, align: 'center' });
+          doc.fontSize(8).fillColor('#444').font('Helvetica-Bold').text(
+            p.label.replace('\\n', '\n'), px + 4, y + 28, { width: perkW - 8, align: 'center', lineGap: 1 }
+          );
+        });
+        y += 68;
+
+        // ═══ TERMS ═══
+        doc.fontSize(13).fillColor('#1a1a2e').font('Helvetica-Bold').text('📝  TERMS:', M, y);
+        y += 18;
+        doc.roundedRect(M, y, CW, 50, 6).fillAndStroke('#f8fafc', '#e2e8f0');
+        doc.fontSize(9).fillColor('#555').font('Helvetica').text(termsText, M + 14, y + 10, { width: CW - 28, lineGap: 2 });
+        y = Math.max(doc.y + 14, y + 56);
+
+        // ═══ ACCEPTANCE ═══
+        const halfW = (CW - 30) / 2;
+        doc.fontSize(10).fillColor('#1a1a2e').font('Helvetica-Bold');
+        doc.text('ACCEPTANCE:', M, y);
+        doc.text('PRIMECODE SOLUTIONS:', M + halfW + 30, y);
+        y += 18;
+        // Signature lines
+        doc.moveTo(M, y + 30).lineTo(M + halfW, y + 30).lineWidth(0.5).strokeColor('#cbd5e1').stroke();
+        doc.moveTo(M + halfW + 30, y + 30).lineTo(W - M, y + 30).lineWidth(0.5).stroke();
+        
+        // Owner signature image
+        if (signatureBuffer) {
+          doc.image(signatureBuffer, M + halfW + 30, y, { height: 28 });
+        }
+        y += 34;
+        doc.fontSize(8).fillColor('#888').font('Helvetica');
+        doc.text('Candidate Signature', M, y);
+        doc.font('Helvetica-Bold').fillColor('#1a1a2e').text('Balichak Suman', M + halfW + 30, y);
+        y += 11;
+        doc.font('Helvetica').fillColor('#888');
+        doc.text('Date, Print Name', M, y);
+        doc.text('Founder & CEO', M + halfW + 30, y);
+        y += 24;
+
+        // ═══ FOOTER ═══
+        doc.moveTo(M, y).lineTo(W - M, y).lineWidth(1).strokeColor('#e2e8f0').stroke();
+        y += 10;
+        if (logoBuffer) {
+          doc.image(logoBuffer, M, y, { height: 18 });
+        }
+        doc.fontSize(8).fillColor('#888').text('www.primecode.in', M, y + 20);
+        doc.fontSize(9).fillColor('#888').font('Helvetica-Oblique').text('Welcome to the future of tech.', M, y, { width: CW, align: 'right' });
+
+        doc.end();
       });
-      const page = await browser.newPage();
-      await page.setContent(pdfHtml, { waitUntil: 'networkidle0' });
-      const pdfBuffer = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        margin: { top: '0', bottom: '0', left: '0', right: '0' }
-      });
-      await browser.close();
-
-      // Convert PDF to base64 for Brevo attachment
-      const pdfBase64 = pdfBuffer.toString('base64');
 
       // ═══ SEND EMAIL WITH PDF ATTACHMENT VIA BREVO ═══
       const emailSubject = `Offer of Employment – ${application.jobTitle || 'Open Position'} at PrimeCode Solutions`;
