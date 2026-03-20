@@ -804,13 +804,13 @@ router.post(
       const termsText = terms || 'Offer acceptance deadline: 7 days from the date of this letter. The company reserves the right to conduct background checks and professional verification. Please review all terms and conditions before accepting. We look forward to welcoming you to the PrimeCode family.';
 
       // Read logo and signature as buffers for pdfkit
-      const logoPath = path.resolve('templates/logo.png');
-      const signaturePath = path.resolve('templates/signature.png');
+      const logoPath = path.join(__dirname, '../templates/logo.png');
+      const signaturePath = path.join(__dirname, '../templates/signature.png');
       const logoBuffer = fs.existsSync(logoPath) ? fs.readFileSync(logoPath) : null;
       const signatureBuffer = fs.existsSync(signaturePath) ? fs.readFileSync(signaturePath) : null;
 
       // ═══ GENERATE PDF WITH PDFKIT ═══
-      const PDFDocument = (await import('pdfkit')).default;
+      const PDFDocument = require('pdfkit');
 
       const pdfBase64 = await new Promise((resolve, reject) => {
         const doc = new PDFDocument({ size: 'A4', margin: 50 });
