@@ -749,7 +749,7 @@ router.post(
 );
 
 // ─────────────────────────────────────────────
-// POST /api/careers/send-offer — Send offer letter email
+// POST /api/careers/send-offer — Send offer letter as PDF
 // ─────────────────────────────────────────────
 router.post(
   '/send-offer',
@@ -757,7 +757,7 @@ router.post(
   checkRole('ADMIN', 'HR'),
   async (req, res) => {
     try {
-      const { applicationId, salary, startDate, reportTo, perks, terms } = req.body;
+      const { applicationId, salary, startDate, reportTo, terms } = req.body;
 
       if (!applicationId || !salary || !startDate) {
         return res.status(400).json({ error: 'applicationId, salary, and startDate are required' });
@@ -777,7 +777,7 @@ router.post(
         data: { status: 'OFFERED' }
       });
 
-      // Format date
+      // Format dates
       const dateObj = new Date(startDate + 'T00:00:00');
       const formattedStartDate = dateObj.toLocaleDateString('en-IN', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -786,221 +786,254 @@ router.post(
         year: 'numeric', month: 'long', day: 'numeric'
       });
 
-      // Default perks
-      const defaultPerks = [
-        { icon: '🏠', label: 'Flexible / Hybrid Work' },
-        { icon: '🏥', label: 'Health & Wellness' },
-        { icon: '📚', label: 'Continuous Learning Fund' },
-        { icon: '🏖️', label: '25 Days Paid PTO' }
-      ];
-      const perksList = perks && perks.length > 0 ? perks : defaultPerks;
+      const termsText = terms || 'Offer acceptance deadline: 7 days from the date of this letter. The company reserves the right to conduct background checks and professional verification. Please review all terms and conditions before accepting. We look forward to welcoming you to the PrimeCode family.';
 
-      const perksHtml = perksList.map(p => `
-        <td style="text-align:center; padding:12px 8px; width:25%;">
-          <div style="font-size:24px; margin-bottom:6px;">${p.icon}</div>
-          <div style="color:rgba(255,255,255,0.7); font-size:11px; font-weight:600; line-height:1.3;">${p.label}</div>
-        </td>
-      `).join('');
+      // Read logo and signature as base64
+      const logoPath = path.resolve('templates/logo.png');
+      const signaturePath = path.resolve('templates/signature.png');
+      const logoBase64 = fs.existsSync(logoPath) ? fs.readFileSync(logoPath).toString('base64') : '';
+      const signatureBase64 = fs.existsSync(signaturePath) ? fs.readFileSync(signaturePath).toString('base64') : '';
+      const logoDataUri = logoBase64 ? `data:image/png;base64,${logoBase64}` : 'https://primecode.in/logo.png';
+      const signatureDataUri = signatureBase64 ? `data:image/png;base64,${signatureBase64}` : '';
 
-      const termsText = terms || `Offer acceptance deadline: 7 days from the date of this letter. The company requires completion of background check and professional verification. Please review all terms and conditions before accepting. We look forward to welcoming you to the PrimeCode family.`;
-
-      const emailHtml = `
+      // ═══ PDF HTML TEMPLATE ═══
+      const pdfHtml = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Inter', sans-serif; background: #fff; color: #1a1a2e; }
+          .page { width: 210mm; min-height: 297mm; margin: 0 auto; position: relative; padding: 50px 50px 40px; overflow: hidden; }
+          
+          /* ═══ GEOMETRIC BORDER DECORATIONS ═══ */
+          .geo-top-left { position: absolute; top: 0; left: 0; width: 160px; height: 140px; }
+          .geo-top-right { position: absolute; top: 0; right: 0; width: 120px; height: 120px; }
+          .geo-bottom-left { position: absolute; bottom: 0; left: 0; width: 140px; height: 100px; }
+          .geo-bottom-right { position: absolute; bottom: 0; right: 0; width: 200px; height: 130px; }
+          
+          .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; position: relative; z-index: 2; }
+          .header img { height: 42px; }
+          .header-right { text-align: right; font-size: 10px; color: #666; }
+          
+          h1 { font-size: 28px; font-weight: 800; color: #1a1a2e; letter-spacing: 1px; margin: 20px 0 12px; border-bottom: 3px solid #0891b2; padding-bottom: 8px; display: inline-block; }
+          .candidate-info { font-size: 13px; color: #444; margin-bottom: 6px; }
+          .greeting { font-size: 14px; line-height: 1.7; color: #333; margin: 16px 0 20px; }
+          .greeting strong { color: #0891b2; }
+          
+          .section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+          .section-title span.icon { font-size: 20px; }
+          .section-title span.label { font-size: 15px; font-weight: 700; color: #0891b2; text-transform: uppercase; letter-spacing: 1px; }
+          
+          .role-card { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; }
+          .role-row { display: flex; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #e0f2fe; }
+          .role-row:last-child { border-bottom: none; }
+          .role-label { width: 35%; color: #666; font-weight: 600; }
+          .role-value { color: #1a1a2e; font-weight: 600; }
+          
+          .comp-card { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; }
+          .comp-card .salary { color: #0891b2; font-weight: 700; font-size: 16px; }
+          
+          .perks-grid { display: flex; gap: 12px; margin-bottom: 20px; }
+          .perk-box { flex: 1; text-align: center; background: #f0fdfa; border: 1px solid #ccfbf1; border-radius: 10px; padding: 14px 8px; }
+          .perk-box .perk-icon { font-size: 26px; margin-bottom: 6px; }
+          .perk-box .perk-label { font-size: 10px; font-weight: 600; color: #444; line-height: 1.3; }
+          
+          .terms-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; font-size: 11px; line-height: 1.7; color: #555; margin-bottom: 24px; }
+          
+          .acceptance { display: flex; gap: 40px; margin-bottom: 20px; }
+          .accept-col { flex: 1; }
+          .accept-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #1a1a2e; margin-bottom: 8px; }
+          .accept-line { border-bottom: 1px solid #cbd5e1; min-height: 40px; margin-bottom: 4px; display: flex; align-items: flex-end; }
+          .accept-label { font-size: 10px; color: #888; }
+          .signature-img { height: 40px; margin-bottom: 0; }
+          
+          .footer { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 2px solid #e2e8f0; position: relative; z-index: 2; }
+          .footer img { height: 24px; opacity: 0.7; }
+          .footer-left { font-size: 10px; color: #888; }
+          .footer-right { font-size: 11px; color: #888; font-style: italic; }
+        </style>
       </head>
-      <body style="margin:0; padding:0; background:#0a0a0a; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a; padding:40px 20px;">
-          <tr>
-            <td align="center">
-              <table width="650" cellpadding="0" cellspacing="0" style="background:#111; border-radius:0; overflow:hidden; border:1px solid rgba(0,210,255,0.12);">
-
-                <!-- ═══ HEADER BAR ═══ -->
-                <tr>
-                  <td style="padding:28px 40px; background:linear-gradient(135deg, #0a0a0a, #111); border-bottom:2px solid #00D2FF;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td>
-                          <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:36px;" />
-                        </td>
-                        <td align="right" style="color:rgba(255,255,255,0.4); font-size:11px; letter-spacing:1px;">
-                          www.primecode.in<br/>
-                          <span style="color:rgba(255,255,255,0.25);">Welcome to the future of tech.</span>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- ═══ DECORATIVE GEOMETRIC ACCENT ═══ -->
-                <tr>
-                  <td style="height:6px; background: linear-gradient(90deg, #00D2FF 0%, #7928CA 50%, #00D2FF 100%);"></td>
-                </tr>
-
-                <!-- ═══ TITLE ═══ -->
-                <tr>
-                  <td style="padding:40px 40px 24px;">
-                    <h1 style="margin:0 0 8px; font-size:28px; font-weight:800; color:#fff; letter-spacing:1px;">OFFER OF EMPLOYMENT</h1>
-                    <table cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="background:rgba(0,210,255,0.1); border:1px solid rgba(0,210,255,0.2); border-radius:6px; padding:6px 14px;">
-                          <span style="color:#00D2FF; font-size:12px; font-weight:600;">${application.fullName}</span>
-                        </td>
-                        <td style="padding-left:12px;">
-                          <span style="color:rgba(255,255,255,0.4); font-size:12px;">Date: ${today}</span>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- ═══ GREETING ═══ -->
-                <tr>
-                  <td style="padding:0 40px 24px;">
-                    <p style="color:rgba(255,255,255,0.85); font-size:15px; line-height:1.7; margin:0;">
-                      Dear <strong style="color:#fff;">${application.fullName}</strong>,
-                    </p>
-                    <p style="color:rgba(255,255,255,0.7); font-size:14px; line-height:1.7; margin:12px 0 0;">
-                      Congratulations! We are thrilled to formally offer you the position of <strong style="color:#00D2FF;">${application.jobTitle || 'the open position'}</strong> at 
-                      <strong style="color:#fff;">PrimeCode Solutions</strong>. We are impressed by your skills and potential, and we are confident you will be a vital asset to our team.
-                    </p>
-                  </td>
-                </tr>
-
-                <!-- ═══ ROLE OVERVIEW ═══ -->
-                <tr>
-                  <td style="padding:0 40px 24px;">
-                    <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(0,210,255,0.04); border:1px solid rgba(0,210,255,0.1); border-radius:12px;">
-                      <tr>
-                        <td style="padding:20px 24px;">
-                          <div style="display:flex; align-items:center; margin-bottom:14px;">
-                            <span style="font-size:18px; margin-right:8px;">📋</span>
-                            <span style="color:#00D2FF; font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Role Overview</span>
-                          </div>
-                          <table width="100%" cellpadding="0" cellspacing="0">
-                            <tr>
-                              <td style="padding:6px 0; color:rgba(255,255,255,0.5); font-size:12px; width:40%;">Department</td>
-                              <td style="padding:6px 0; color:#fff; font-size:13px; font-weight:600;">${application.department || 'Engineering'}</td>
-                            </tr>
-                            <tr>
-                              <td style="padding:6px 0; color:rgba(255,255,255,0.5); font-size:12px; border-top:1px solid rgba(255,255,255,0.04);">Report To</td>
-                              <td style="padding:6px 0; color:#fff; font-size:13px; font-weight:600; border-top:1px solid rgba(255,255,255,0.04);">${reportTo || 'Team Lead'}</td>
-                            </tr>
-                            <tr>
-                              <td style="padding:6px 0; color:rgba(255,255,255,0.5); font-size:12px; border-top:1px solid rgba(255,255,255,0.04);">Start Date</td>
-                              <td style="padding:6px 0; color:#fff; font-size:13px; font-weight:600; border-top:1px solid rgba(255,255,255,0.04);">${formattedStartDate}</td>
-                            </tr>
-                          </table>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- ═══ COMPENSATION ═══ -->
-                <tr>
-                  <td style="padding:0 40px 24px;">
-                    <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(121,40,202,0.06); border:1px solid rgba(121,40,202,0.15); border-radius:12px;">
-                      <tr>
-                        <td style="padding:20px 24px;">
-                          <div style="display:flex; align-items:center; margin-bottom:14px;">
-                            <span style="font-size:18px; margin-right:8px;">💰</span>
-                            <span style="color:#B06FFF; font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Compensation & Benefits</span>
-                          </div>
-                          <p style="color:rgba(255,255,255,0.75); font-size:13px; line-height:1.6; margin:0;">
-                            <strong style="color:#fff;">Base Salary:</strong> <span style="color:#00D2FF; font-weight:700; font-size:15px;">${salary}</span> per annum, 
-                            eligible for annual performance bonus of up to 15% of CTC.
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- ═══ KEY PERKS ═══ -->
-                <tr>
-                  <td style="padding:0 40px 24px;">
-                    <div style="margin-bottom:12px;">
-                      <span style="font-size:16px; margin-right:6px;">🎁</span>
-                      <span style="color:#FFD700; font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Key Perks</span>
-                    </div>
-                    <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(255,215,0,0.04); border:1px solid rgba(255,215,0,0.1); border-radius:12px;">
-                      <tr>
-                        ${perksHtml}
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- ═══ TERMS ═══ -->
-                <tr>
-                  <td style="padding:0 40px 24px;">
-                    <div style="margin-bottom:10px;">
-                      <span style="font-size:16px; margin-right:6px;">📝</span>
-                      <span style="color:rgba(255,255,255,0.6); font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Terms</span>
-                    </div>
-                    <p style="color:rgba(255,255,255,0.5); font-size:12px; line-height:1.7; margin:0; padding:16px; background:rgba(255,255,255,0.02); border-radius:8px; border:1px solid rgba(255,255,255,0.04);">
-                      ${termsText}
-                    </p>
-                  </td>
-                </tr>
-
-                <!-- ═══ ACCEPTANCE ═══ -->
-                <tr>
-                  <td style="padding:0 40px 32px;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="width:50%; padding-right:12px;">
-                          <div style="color:rgba(255,255,255,0.4); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Acceptance</div>
-                          <div style="border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px; margin-bottom:6px; min-height:24px;"></div>
-                          <div style="color:rgba(255,255,255,0.5); font-size:11px;">Candidate Signature</div>
-                          <div style="color:rgba(255,255,255,0.3); font-size:10px;">Date, Print Name</div>
-                        </td>
-                        <td style="width:50%; padding-left:12px;">
-                          <div style="color:rgba(255,255,255,0.4); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">PrimeCode Solutions</div>
-                          <div style="border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px; margin-bottom:6px; min-height:24px;"></div>
-                          <div style="color:rgba(255,255,255,0.5); font-size:11px;">Hiring Manager Signature</div>
-                          <div style="color:rgba(255,255,255,0.3); font-size:10px;">Date, Title</div>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- ═══ FOOTER ═══ -->
-                <tr>
-                  <td style="background:linear-gradient(135deg, rgba(0,210,255,0.08), rgba(121,40,202,0.08)); padding:20px 40px; border-top:1px solid rgba(0,210,255,0.1);">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td>
-                          <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:24px; opacity:0.6;" />
-                          <div style="color:rgba(255,255,255,0.3); font-size:10px; margin-top:4px;">www.primecode.in</div>
-                        </td>
-                        <td align="right" style="color:rgba(255,255,255,0.3); font-size:11px; font-style:italic;">
-                          Welcome to the future of tech.
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-              </table>
-            </td>
-          </tr>
-        </table>
+      <body>
+        <div class="page">
+          <!-- ═══ GEOMETRIC DECORATIONS ═══ -->
+          <svg class="geo-top-left" viewBox="0 0 160 140" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="50" height="50" fill="#0891b2" opacity="0.8"/>
+            <rect x="55" y="0" width="35" height="35" fill="#f97316" opacity="0.7"/>
+            <polygon points="0,55 50,55 0,105" fill="#0891b2" opacity="0.3"/>
+            <rect x="55" y="40" width="25" height="25" fill="#0891b2" opacity="0.15"/>
+            <polygon points="95,0 160,0 160,65" fill="#94a3b8" opacity="0.12"/>
+            <circle cx="110" cy="45" r="18" fill="#f97316" opacity="0.15"/>
+            <rect x="0" y="110" width="40" height="30" fill="#0891b2" opacity="0.12"/>
+          </svg>
+          
+          <svg class="geo-top-right" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="40,0 120,0 120,80" fill="#94a3b8" opacity="0.15"/>
+            <circle cx="90" cy="30" r="25" fill="#0891b2" opacity="0.12"/>
+            <rect x="70" y="60" width="50" height="30" fill="#f97316" opacity="0.2"/>
+            <polygon points="0,0 40,0 40,40" fill="#0891b2" opacity="0.1"/>
+          </svg>
+          
+          <svg class="geo-bottom-left" viewBox="0 0 140 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="60" width="60" height="40" fill="#0891b2" opacity="0.8"/>
+            <polygon points="65,100 65,50 115,100" fill="#f97316" opacity="0.6"/>
+            <polygon points="0,40 40,40 0,80" fill="#94a3b8" opacity="0.2"/>
+            <rect x="120" y="70" width="20" height="30" fill="#0891b2" opacity="0.15"/>
+          </svg>
+          
+          <svg class="geo-bottom-right" viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="100,130 200,130 200,30" fill="#0891b2" opacity="0.15"/>
+            <polygon points="130,130 180,130 180,80" fill="#f97316" opacity="0.5"/>
+            <rect x="60" y="90" width="40" height="40" fill="#0891b2" opacity="0.7"/>
+            <polygon points="50,130 100,130 100,80" fill="#94a3b8" opacity="0.2"/>
+            <rect x="160" y="50" width="30" height="30" fill="#0891b2" opacity="0.2"/>
+          </svg>
+          
+          <!-- ═══ HEADER ═══ -->
+          <div class="header">
+            <img src="${logoDataUri}" alt="PrimeCode" />
+            <div class="header-right">
+              www.primecode.in<br/>
+              <span style="color:#999;">Welcome to the future of tech.</span>
+            </div>
+          </div>
+          
+          <!-- ═══ TITLE ═══ -->
+          <h1>OFFER OF EMPLOYMENT</h1>
+          <div class="candidate-info">[${application.fullName}]</div>
+          <div class="candidate-info" style="color:#888;">[Date: ${today}]</div>
+          
+          <!-- ═══ GREETING ═══ -->
+          <div class="greeting">
+            Dear <strong>${application.fullName}</strong>,<br/><br/>
+            Congratulations! We are thrilled to formally offer you the position of <strong>${application.jobTitle || 'the open position'}</strong> at 
+            <strong style="color:#1a1a2e;">PrimeCode Solutions</strong>. We are impressed by your skills and potential, and we are confident you will be a vital asset to our team.
+          </div>
+          
+          <!-- ═══ ROLE OVERVIEW ═══ -->
+          <div class="section-title">
+            <span class="icon">📋</span>
+            <span class="label">Role Overview:</span>
+          </div>
+          <div class="role-card">
+            <div class="role-row"><span class="role-label">Department:</span><span class="role-value">${application.department || 'Engineering'}</span></div>
+            <div class="role-row"><span class="role-label">Report To:</span><span class="role-value">${reportTo || 'Team Lead'}</span></div>
+            <div class="role-row"><span class="role-label">Start Date:</span><span class="role-value">${formattedStartDate}</span></div>
+          </div>
+          
+          <!-- ═══ COMPENSATION ═══ -->
+          <div class="section-title">
+            <span class="icon">💰</span>
+            <span class="label">Compensation & Benefits:</span>
+          </div>
+          <div class="comp-card">
+            <strong>Base Salary:</strong> <span class="salary">${salary}</span> per year, paid monthly. Eligible for annual performance bonus of up to 15% of CTC.
+          </div>
+          
+          <!-- ═══ KEY PERKS ═══ -->
+          <div class="section-title">
+            <span class="icon">🎁</span>
+            <span class="label">Key Perks:</span>
+          </div>
+          <div class="perks-grid">
+            <div class="perk-box"><div class="perk-icon">🏠</div><div class="perk-label">Fully Remote/Hybrid<br/>Flexibility</div></div>
+            <div class="perk-box"><div class="perk-icon">🏥</div><div class="perk-label">Comprehensive<br/>Health & Wellness</div></div>
+            <div class="perk-box"><div class="perk-icon">📚</div><div class="perk-label">Continuous<br/>Learning Fund</div></div>
+            <div class="perk-box"><div class="perk-icon">🚀</div><div class="perk-label">Career Growth<br/>Opportunities</div></div>
+          </div>
+          
+          <!-- ═══ TERMS ═══ -->
+          <div class="section-title">
+            <span class="icon">📝</span>
+            <span class="label">Terms:</span>
+          </div>
+          <div class="terms-box">${termsText}</div>
+          
+          <!-- ═══ ACCEPTANCE ═══ -->
+          <div class="acceptance">
+            <div class="accept-col">
+              <div class="accept-title">Acceptance:</div>
+              <div class="accept-line"></div>
+              <div class="accept-label">Candidate Signature</div>
+              <div class="accept-label">Date, Print Name</div>
+            </div>
+            <div class="accept-col">
+              <div class="accept-title">PrimeCode Solutions:</div>
+              <div class="accept-line">
+                ${signatureDataUri ? `<img src="${signatureDataUri}" class="signature-img" alt="Signature" />` : ''}
+              </div>
+              <div class="accept-label"><strong style="color:#1a1a2e;">Balichak Suman</strong></div>
+              <div class="accept-label">Founder & CEO</div>
+            </div>
+          </div>
+          
+          <!-- ═══ FOOTER ═══ -->
+          <div class="footer">
+            <div>
+              <img src="${logoDataUri}" alt="PrimeCode" />
+              <div class="footer-left">www.primecode.in</div>
+            </div>
+            <div class="footer-right">Welcome to the future of tech.</div>
+          </div>
+        </div>
       </body>
       </html>
       `;
 
-      await sendBrevoEmail(
-        application.email,
-        `Offer of Employment – ${application.jobTitle || 'Open Position'} at PrimeCode Solutions`,
-        emailHtml
+      // ═══ GENERATE PDF WITH PUPPETEER ═══
+      const puppeteer = (await import('puppeteer')).default;
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+      const page = await browser.newPage();
+      await page.setContent(pdfHtml, { waitUntil: 'networkidle0' });
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: { top: '0', bottom: '0', left: '0', right: '0' }
+      });
+      await browser.close();
+
+      // Convert PDF to base64 for Brevo attachment
+      const pdfBase64 = pdfBuffer.toString('base64');
+
+      // ═══ SEND EMAIL WITH PDF ATTACHMENT VIA BREVO ═══
+      const emailSubject = `Offer of Employment – ${application.jobTitle || 'Open Position'} at PrimeCode Solutions`;
+      const emailBody = `
+        <div style="font-family:'Segoe UI',sans-serif; padding:20px; color:#333;">
+          <p>Dear <strong>${application.fullName}</strong>,</p>
+          <p>Please find attached your official <strong>Offer of Employment</strong> from PrimeCode Solutions for the position of <strong>${application.jobTitle || 'the open position'}</strong>.</p>
+          <p>We are excited to welcome you to our team! Please review the attached offer letter carefully and reach out if you have any questions.</p>
+          <br/>
+          <p>Best regards,<br/><strong>Balichak Suman</strong><br/>Founder & CEO, PrimeCode Solutions<br/>www.primecode.in</p>
+        </div>
+      `;
+
+      // Brevo API with attachment
+      await axios.post(
+        'https://api.brevo.com/v3/smtp/email',
+        {
+          sender: { name: 'PrimeCode Careers', email: SENDER_EMAIL },
+          to: [{ email: application.email, name: application.fullName }],
+          subject: emailSubject,
+          htmlContent: emailBody,
+          attachment: [{
+            content: pdfBase64,
+            name: `PrimeCode_Offer_Letter_${application.fullName.replace(/\s+/g, '_')}.pdf`
+          }]
+        },
+        {
+          headers: {
+            'api-key': BREVO_API_KEY,
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
-      console.log(`[CAREERS] Offer letter sent for application #${applicationId} → ${application.email} by ${req.user.name}`);
+      console.log(`[CAREERS] Offer letter PDF sent for application #${applicationId} → ${application.email} by ${req.user.name}`);
       res.json({ success: true, application: updated });
     } catch (error) {
       console.error('POST /careers/send-offer error:', error);
