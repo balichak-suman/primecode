@@ -54,11 +54,11 @@ const HR_EMAILS = [
   'balichaksumann@gmail.com'
 ];
 
-const sendBrevoEmail = async (to, subject, htmlContent) => {
+const sendBrevoEmail = async (to, subject, htmlContent, skipBranding = false) => {
   try {
     const toArray = Array.isArray(to) ? to.map(e => ({ email: e })) : [{ email: to }];
-    // Auto-wrap with branded logo header and footer
-    const brandedHtml = `
+    // Auto-wrap with branded logo header and footer (unless skipBranding)
+    const finalHtml = skipBranding ? htmlContent : `
       <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; max-width:650px; margin:0 auto; background:#0a0a0a; border-radius:12px; overflow:hidden; border:1px solid rgba(0,210,255,0.15);">
         <div style="padding:20px 30px; border-bottom:1px solid rgba(0,210,255,0.1); text-align:center; background:linear-gradient(135deg, rgba(0,210,255,0.06), rgba(121,40,202,0.06));">
           <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:36px;" />
@@ -77,7 +77,7 @@ const sendBrevoEmail = async (to, subject, htmlContent) => {
         sender: { name: 'PrimeCode Careers', email: SENDER_EMAIL },
         to: toArray,
         subject,
-        htmlContent: brandedHtml,
+        htmlContent: finalHtml,
       },
       {
         headers: {
@@ -750,7 +750,8 @@ router.post(
       await sendBrevoEmail(
         application.email,
         `Interview Scheduled – ${application.jobTitle || 'Open Position'} at PrimeCode`,
-        emailHtml
+        emailHtml,
+        true // skipBranding — this email has its own full template with logo
       );
 
       console.log(`[CAREERS] Interview scheduled for application #${applicationId} → ${application.email} by ${req.user.name}`);
