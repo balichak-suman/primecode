@@ -867,15 +867,15 @@ router.post(
         doc.restore();
         doc.rect(W - 140, H - 40, 40, 40).fill('#0891b2');
 
-        let y = M;
+        let y = 80; // Start lower to avoid top border decorations
 
         // ═══ HEADER ═══
         if (logoBuffer) {
-          doc.image(logoBuffer, M, y, { height: 30 });
+          doc.image(logoBuffer, M, y, { height: 32 });
         }
-        doc.fontSize(9).fillColor('#888').text('www.primecode.in', M, y, { width: CW, align: 'right' });
-        doc.fontSize(8).fillColor('#aaa').text('Welcome to the future of tech.', M, y + 12, { width: CW, align: 'right' });
-        y += 45;
+        doc.fontSize(10).fillColor('#666').text('www.primecode.in', M, y + 4, { width: CW, align: 'right' });
+        doc.fontSize(8).fillColor('#aaa').text('Welcome to the future of tech.', M, y + 16, { width: CW, align: 'right' });
+        y += 55;
 
         // ═══ TITLE ═══
         doc.fontSize(26).fillColor('#1a1a2e').font('Helvetica-Bold').text('OFFER OF EMPLOYMENT', M, y);
@@ -905,7 +905,7 @@ router.post(
         y = doc.y + 20;
 
         // ═══ ROLE OVERVIEW ═══
-        doc.fontSize(13).fillColor('#0891b2').font('Helvetica-Bold').text('📋  ROLE OVERVIEW:', M, y);
+        doc.fontSize(13).fillColor('#0891b2').font('Helvetica-Bold').text('ROLE OVERVIEW:', M, y);
         y += 20;
         // Card background
         doc.roundedRect(M, y, CW, 70, 8).fillAndStroke('#f0f9ff', '#bae6fd');
@@ -920,7 +920,7 @@ router.post(
         y += 82;
 
         // ═══ COMPENSATION ═══
-        doc.fontSize(13).fillColor('#7c3aed').font('Helvetica-Bold').text('💰  COMPENSATION & BENEFITS:', M, y);
+        doc.fontSize(13).fillColor('#7c3aed').font('Helvetica-Bold').text('COMPENSATION & BENEFITS:', M, y);
         y += 20;
         doc.roundedRect(M, y, CW, 45, 8).fillAndStroke('#faf5ff', '#e9d5ff');
         doc.fontSize(10).fillColor('#333').font('Helvetica');
@@ -931,27 +931,27 @@ router.post(
         y += 58;
 
         // ═══ KEY PERKS ═══
-        doc.fontSize(13).fillColor('#b45309').font('Helvetica-Bold').text('🎁  KEY PERKS:', M, y);
+        doc.fontSize(13).fillColor('#b45309').font('Helvetica-Bold').text('KEY PERKS:', M, y);
         y += 20;
         const perks = [
-          { icon: '🏠', label: 'Flexible / Hybrid\\nWork' },
-          { icon: '🏥', label: 'Health &\\nWellness' },
-          { icon: '📚', label: 'Continuous\\nLearning Fund' },
-          { icon: '🚀', label: 'Career Growth\\nOpportunities' }
+          { icon: '·', label: 'Flexible / Hybrid\\nWork' },
+          { icon: '·', label: 'Health &\\nWellness' },
+          { icon: '·', label: 'Continuous\\nLearning Fund' },
+          { icon: '·', label: 'Career Growth\\nOpportunities' }
         ];
         const perkW = (CW - 30) / 4;
         perks.forEach((p, i) => {
           const px = M + i * (perkW + 10);
-          doc.roundedRect(px, y, perkW, 55, 6).fillAndStroke('#f0fdfa', '#ccfbf1');
-          doc.fontSize(16).text(p.icon, px, y + 6, { width: perkW, align: 'center' });
+          doc.roundedRect(px, y, perkW, 45, 6).fillAndStroke('#f0fdfa', '#ccfbf1');
+          doc.fontSize(18).fillColor('#0891b2').text(p.icon, px, y + 6, { width: perkW, align: 'center' });
           doc.fontSize(8).fillColor('#444').font('Helvetica-Bold').text(
-            p.label.replace('\\n', '\n'), px + 4, y + 28, { width: perkW - 8, align: 'center', lineGap: 1 }
+            p.label.replace('\\n', '\n'), px + 4, y + 20, { width: perkW - 8, align: 'center', lineGap: 1 }
           );
         });
-        y += 68;
+        y += 58;
 
         // ═══ TERMS ═══
-        doc.fontSize(13).fillColor('#1a1a2e').font('Helvetica-Bold').text('📝  TERMS:', M, y);
+        doc.fontSize(13).fillColor('#1a1a2e').font('Helvetica-Bold').text('TERMS:', M, y);
         y += 18;
         doc.roundedRect(M, y, CW, 50, 6).fillAndStroke('#f8fafc', '#e2e8f0');
         doc.fontSize(9).fillColor('#555').font('Helvetica').text(termsText, M + 14, y + 10, { width: CW - 28, lineGap: 2 });
@@ -969,25 +969,26 @@ router.post(
         
         // Owner signature image
         if (signatureBuffer) {
-          doc.image(signatureBuffer, M + halfW + 30, y, { height: 28 });
+          doc.image(signatureBuffer, M + halfW + 30, y - 10, { height: 34 });
         }
         y += 34;
-        doc.fontSize(8).fillColor('#888').font('Helvetica');
+        doc.fontSize(9).fillColor('#888').font('Helvetica');
         doc.text('Candidate Signature', M, y);
         doc.font('Helvetica-Bold').fillColor('#1a1a2e').text('Balichak Suman', M + halfW + 30, y);
-        y += 11;
+        y += 14;
         doc.font('Helvetica').fillColor('#888');
         doc.text('Date, Print Name', M, y);
         doc.text('Founder & CEO', M + halfW + 30, y);
-        y += 24;
+        y += 30;
 
         // ═══ FOOTER ═══
         doc.moveTo(M, y).lineTo(W - M, y).lineWidth(1).strokeColor('#e2e8f0').stroke();
-        y += 10;
+        y += 12;
         if (logoBuffer) {
-          doc.image(logoBuffer, M, y, { height: 18 });
+          doc.image(logoBuffer, M, y, { height: 20 });
         }
-        doc.fontSize(8).fillColor('#888').text('www.primecode.in', M, y + 20);
+        doc.fontSize(9).fillColor('#888').text('www.primecode.in', M, y + 26);
+
         doc.fontSize(9).fillColor('#888').font('Helvetica-Oblique').text('Welcome to the future of tech.', M, y, { width: CW, align: 'right' });
 
         doc.end();
