@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { body, query, validationResult } from 'express-validator';
 import nodemailer from 'nodemailer';
+import jwt from 'jsonwebtoken';
 import prisma from '../prismaClient.js';
 import { authenticateToken, checkRole, activityLogger } from '../middleware/authMiddleware.js';
 
@@ -997,6 +998,20 @@ router.post(
         doc.end();
       });
 
+      // GENERATE SECURE ACCEPTANCE TOKEN
+      const tokenPayload = {
+        applicationId: application.id,
+        salary,
+        startDate,
+        reportTo,
+        terms
+      };
+      
+      // Use FRONTEND_URL or fallback to production URL for the email link
+      const frontendUrl = process.env.FRONTEND_URL || 'https://primecode.in';
+      const acceptToken = jwt.sign(tokenPayload, process.env.JWT_SECRET || 'primecode_secret_key_fallback', { expiresIn: '7d' });
+      const acceptLink = `${frontendUrl}/careers/accept-offer?token=${acceptToken}`;
+
       // ═══ SEND EMAIL WITH PDF ATTACHMENT VIA BREVO ═══
       const emailSubject = `Offer of Employment – ${application.jobTitle || 'Open Position'} at PrimeCode Solutions`;
       const emailBody = `
@@ -1008,6 +1023,12 @@ router.post(
             <p>Dear <strong>${application.fullName}</strong>,</p>
             <p>Please find attached your official <strong>Offer of Employment</strong> from PrimeCode Solutions for the position of <strong>${application.jobTitle || 'the open position'}</strong>.</p>
             <p>We are excited to welcome you to our team! Please review the attached offer letter carefully and reach out if you have any questions.</p>
+            <div style="text-align:center; padding: 35px 0 25px 0;">
+              <a href="${acceptLink}" style="background:linear-gradient(135deg, #0891b2, #7c3aed); color:#fff; text-decoration:none; padding:16px 32px; border-radius:8px; font-weight:bold; font-size:16px; display:inline-block; box-shadow:0 4px 15px rgba(124, 58, 237, 0.3);">
+                Sign & Accept Offer
+              </a>
+              <p style="font-size:12px; color:#888; margin-top:12px;">This secure link expires in 7 days.</p>
+            </div>
             <br/>
             <p>Best regards,<br/><strong>Balichak Suman</strong><br/>Founder & CEO, PrimeCode Solutions<br/>www.primecode.in</p>
           </div>
@@ -1047,6 +1068,275 @@ router.post(
     }
   }
 );
+
+// ─────────────────────────────────────────────
+// POST /api/careers/confirm-offer — Accept the offer and countersign PDF
+// ─────────────────────────────────────────────
+router.post('/confirm-offer', async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ error: 'Acceptance token is required.' });
+
+    // Verify token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'primecode_secret_key_fallback');
+    } catch (err) {
+      return res.status(401).json({ error: 'This offer link is invalid or has expired.' });
+    }
+
+    const { applicationId, salary, startDate, reportTo, terms } = decoded;
+
+    // Fetch Application
+    const application = await prisma.jobApplication.findUnique({
+      where: { id: applicationId }
+    });
+
+    if (!application) return res.status(404).json({ error: 'Application not found.' });
+    if (application.status === 'ACCEPTED') return res.status(400).json({ error: 'This offer has already been accepted.' });
+    // Note: status might be INTERVIEW if the HR just didn't update it to OFFERED, or whatever. 
+    // We'll trust the token existence as proof it was offered.
+
+    // ═══ GENERATE COUNTERSIGNED PDF ═══
+    const PDFDocument = (await import('pdfkit')).default;
+    const logoPath = path.resolve('templates/logo.png');
+    const signaturePath = path.resolve('templates/signature.png');
+    const logoBuffer = fs.existsSync(logoPath) ? fs.readFileSync(logoPath) : null;
+    const signatureBuffer = fs.existsSync(signaturePath) ? fs.readFileSync(signaturePath) : null;
+
+    const pdfBuffer = await new Promise((resolve, reject) => {
+      try {
+        const doc = new PDFDocument({ size: 'A4', margin: 40 });
+        const chunks = [];
+        doc.on('data', chunk => chunks.push(chunk));
+        doc.on('end', () => resolve(Buffer.concat(chunks)));
+
+        const W = doc.page.width;
+        const H = doc.page.height;
+        const M = 40;
+        const CW = W - M * 2;
+        const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        doc.rect(0, 0, W, H).fill('white');
+
+        // Geometric borders
+        doc.rect(0, 0, 50, 50).fill('#0891b2');
+        doc.rect(55, 0, 35, 35).fill('#f97316');
+        doc.save().opacity(0.3);
+        doc.polygon([0, 55], [50, 55], [0, 105]).fill('#0891b2');
+        doc.restore();
+        doc.save().opacity(0.15);
+        doc.rect(55, 40, 25, 25).fill('#0891b2');
+        doc.circle(110, 45, 18).fill('#f97316');
+        doc.restore();
+        doc.save().opacity(0.12);
+        doc.polygon([95, 0], [160, 0], [160, 65]).fill('#94a3b8');
+        doc.rect(0, 110, 40, 30).fill('#0891b2');
+        doc.restore();
+
+        doc.save().opacity(0.15);
+        doc.polygon([W - 80, 0], [W, 0], [W, 80]).fill('#94a3b8');
+        doc.circle(W - 30, 30, 25).fill('#0891b2');
+        doc.restore();
+        doc.save().opacity(0.2);
+        doc.rect(W - 50, 60, 50, 30).fill('#f97316');
+        doc.restore();
+
+        doc.rect(0, H - 40, 60, 40).fill('#0891b2');
+        doc.save().opacity(0.6);
+        doc.polygon([65, H], [65, H - 50], [115, H]).fill('#f97316');
+        doc.restore();
+        doc.save().opacity(0.2);
+        doc.polygon([0, H - 60], [40, H - 60], [0, H - 20]).fill('#94a3b8');
+        doc.restore();
+
+        doc.save().opacity(0.15);
+        doc.polygon([W - 100, H], [W, H], [W, H - 100]).fill('#0891b2');
+        doc.restore();
+        doc.save().opacity(0.5);
+        doc.polygon([W - 70, H], [W - 20, H], [W - 20, H - 50]).fill('#f97316');
+        doc.restore();
+        doc.rect(W - 140, H - 40, 40, 40).fill('#0891b2');
+
+        let y = 70;
+
+        if (logoBuffer) {
+          doc.image(logoBuffer, M, y, { height: 28 });
+        }
+        doc.fontSize(10).fillColor('#666').text('www.primecode.in', M, y + 2, { width: CW, align: 'right' });
+        doc.fontSize(8).fillColor('#aaa').text('Welcome to the future of tech.', M, y + 14, { width: CW, align: 'right' });
+        y += 40;
+
+        doc.fontSize(22).fillColor('#1a1a2e').font('Helvetica-Bold').text('OFFER OF EMPLOYMENT', M, y, { width: CW, align: 'center' });
+        y += 24;
+        const underlineW = 220;
+        doc.moveTo(M + (CW - underlineW) / 2, y).lineTo(M + (CW + underlineW) / 2, y).lineWidth(3).strokeColor('#0891b2').stroke();
+        y += 35;
+
+        doc.fontSize(11).fillColor('#444').font('Helvetica').text(`[${application.fullName}]`, M, y);
+        y += 16;
+        doc.fontSize(10).fillColor('#888').text(`[Date: ${today}]`, M, y);
+        y += 35;
+
+        doc.fontSize(11).fillColor('#333').font('Helvetica');
+        doc.text('Dear ', M, y, { continued: true });
+        doc.font('Helvetica-Bold').fillColor('#0891b2').text(application.fullName, { continued: true });
+        doc.font('Helvetica').fillColor('#333').text(',');
+        y += 20;
+        doc.fontSize(10).fillColor('#444').text(
+          'Congratulations! We are thrilled to formally offer you the position of ' +
+          (application.jobTitle || 'the open position') +
+          ' at PrimeCode Solutions. We are impressed by your skills and potential, and we are confident you will be a vital asset to our team.',
+          M, y, { width: CW, lineGap: 3 }
+        );
+        y = doc.y + 30;
+
+        doc.fontSize(11).fillColor('#0891b2').font('Helvetica-Bold').text('ROLE OVERVIEW:', M, y);
+        y += 16;
+        doc.roundedRect(M, y, CW, 50, 8).fillAndStroke('#f0f9ff', '#bae6fd');
+        const roleY = y + 10;
+        doc.fontSize(9).fillColor('#666').font('Helvetica-Bold');
+        doc.text('Department:', M + 16, roleY);
+        doc.fillColor('#1a1a2e').text(application.department || 'Engineering', M + 100, roleY);
+        doc.fillColor('#666').text('Report To:', M + 16, roleY + 16);
+        doc.fillColor('#1a1a2e').text(reportTo || 'Team Lead', M + 100, roleY + 16);
+        doc.fillColor('#666').text('Start Date:', CW / 2 + 20, roleY);
+        
+        let formattedStartDate = startDate;
+        try {
+          if (!isNaN(new Date(startDate).getTime())) {
+            formattedStartDate = new Date(startDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+          }
+        } catch(e) {}
+        doc.fillColor('#1a1a2e').text(formattedStartDate, CW / 2 + 80, roleY);
+        y += 75;
+
+        doc.fontSize(11).fillColor('#7c3aed').font('Helvetica-Bold').text('COMPENSATION & BENEFITS:', M, y);
+        y += 16;
+        doc.roundedRect(M, y, CW, 38, 8).fillAndStroke('#faf5ff', '#e9d5ff');
+        doc.fontSize(9).fillColor('#333').font('Helvetica');
+        doc.text('Base Salary: ', M + 16, y + 10, { continued: true });
+        doc.font('Helvetica-Bold').fillColor('#0891b2').text(salary, { continued: true });
+        doc.font('Helvetica').fillColor('#333').text(' per year, paid monthly.');
+        doc.fontSize(8).fillColor('#666').text('Eligible for annual performance bonus of up to 15% of CTC.', M + 16, y + 24);
+        y += 60;
+
+        doc.fontSize(11).fillColor('#b45309').font('Helvetica-Bold').text('KEY PERKS:', M, y);
+        y += 16;
+        const perks = [
+          { icon: '·', label: 'Flexible / Hybrid\\nWork' },
+          { icon: '·', label: 'Health &\\nWellness' },
+          { icon: '·', label: 'Continuous\\nLearning Fund' },
+          { icon: '·', label: 'Career Growth\\nOpportunities' }
+        ];
+        const perkW = (CW - 24) / 4;
+        perks.forEach((p, i) => {
+          const px = M + i * (perkW + 8);
+          doc.roundedRect(px, y, perkW, 35, 6).fillAndStroke('#f0fdfa', '#ccfbf1');
+          doc.fontSize(14).fillColor('#0891b2').text(p.icon, px, y + 4, { width: perkW, align: 'center' });
+          doc.fontSize(7).fillColor('#444').font('Helvetica-Bold').text(
+            p.label.replace('\\n', ' '), px + 2, y + 16, { width: perkW - 4, align: 'center', lineGap: 1 }
+          );
+        });
+        y += 60;
+
+        doc.fontSize(11).fillColor('#1a1a2e').font('Helvetica-Bold').text('TERMS:', M, y);
+        y += 16;
+        doc.roundedRect(M, y, CW, 35, 6).fillAndStroke('#f8fafc', '#e2e8f0');
+        doc.fontSize(8).fillColor('#555').font('Helvetica').text(terms || 'The company reserves the right to conduct background checks.', M + 14, y + 8, { width: CW - 28, lineGap: 1 });
+        y = Math.max(doc.y + 20, y + 54);
+
+        doc.fontSize(9).fillColor('#1a1a2e').font('Helvetica-Bold');
+        doc.text('ACCEPTANCE:', M, y);
+        y += 20;
+
+        const rightAlign = W - M - 140;
+
+        // Candidate Signature (Digitally Signed)
+        doc.fontSize(12).fillColor('#2563eb').font('Helvetica-Oblique').text(application.fullName, M, y + 8); // Inject user typed name as signature
+        doc.fontSize(8).fillColor('#aaa').text('Electronically Signed: ' + today, M, y + 20); // Timestamp of e-signature
+        
+        doc.moveTo(M, y + 36).lineTo(M + 140, y + 36).lineWidth(0.5).strokeColor('#cbd5e1').stroke();
+        doc.moveTo(rightAlign, y + 36).lineTo(W - M, y + 36).lineWidth(0.5).stroke();
+        
+        if (signatureBuffer) {
+          doc.image(signatureBuffer, rightAlign + 10, y - 8, { height: 42 });
+        }
+        y += 44;
+        doc.fontSize(8).fillColor('#888').font('Helvetica');
+        doc.text('Candidate Signature', M, y);
+        doc.font('Helvetica-Bold').fillColor('#1a1a2e').text('Balichak Suman', rightAlign, y, { width: 140, align: 'center' });
+        y += 12;
+        doc.font('Helvetica').fillColor('#888');
+        doc.text(application.fullName, M, y);
+        doc.text('Founder & CEO', rightAlign, y, { width: 140, align: 'center' });
+
+        const footerY = H - 80;
+        doc.moveTo(M, footerY).lineTo(W - M, footerY).lineWidth(1).strokeColor('#e2e8f0').stroke();
+        if (logoBuffer) {
+          doc.image(logoBuffer, M, footerY + 14, { height: 22 });
+        }
+        doc.fontSize(9).fillColor('#888').font('Helvetica-Oblique').text('Welcome to the future of tech.', M, footerY + 28, { width: CW, align: 'right' });
+        doc.font('Helvetica').text('www.primecode.in', M, footerY + 28, { width: CW, align: 'center' });
+
+        doc.end();
+      } catch (err) {
+        reject(err);
+      }
+    });
+
+    const pdfBase64 = pdfBuffer.toString('base64');
+
+    // ═══ SEND COMPLETION EMAIL TO ALL PARTIES ═══
+    const hrEmails = ['prime.code@yahoo.com', 'balichaksumann@gmail.com'];
+    
+    const emailSubject = `Countersigned Offer Letter – ${application.fullName}`;
+    const emailBody = `
+      <div style="font-family:'Segoe UI',sans-serif; max-width:650px; margin:0 auto; background:#fff; border-radius:12px; border:1px solid #e2e8f0;">
+        <div style="padding:20px 30px; text-align:center; background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+          <h2 style="color:#0891b2; margin:0;">Offer Accepted! 🎉</h2>
+        </div>
+        <div style="padding:24px 30px; color:#333;">
+          <p>Dear <strong>${application.fullName}</strong>,</p>
+          <p>Thank you for officially accepting the offer for the <strong>${application.jobTitle || 'Open Position'}</strong> role at PrimeCode Solutions!</p>
+          <p>Your electronically signed Offer Letter has been successfully recorded. A fully finalized and countersigned PDF is attached to this email for your permanent records.</p>
+          <p>Our HR team is CC'd here and will be in touch shortly regarding your onboarding process and schedule.</p>
+          <br/>
+          <p>Welcome aboard!<br/><strong>PrimeCode HR Team</strong></p>
+        </div>
+      </div>
+    `;
+
+    // To Candidate (cc HR)
+    await axios.post(
+      'https://api.brevo.com/v3/smtp/email',
+      {
+        sender: { name: 'PrimeCode Onboarding', email: process.env.SENDER_EMAIL || 'careers@primecode.in' },
+        to: [{ email: application.email, name: application.fullName }],
+        cc: hrEmails.map(email => ({ email })),
+        subject: emailSubject,
+        htmlContent: emailBody,
+        attachment: [{
+          content: pdfBase64,
+          name: `PrimeCode_Accepted_Offer_${application.fullName.replace(/\s+/g, '_')}.pdf`
+        }]
+      },
+      { headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' } }
+    );
+
+    // ═══ UPDATE DATABASE ═══
+    const updated = await prisma.jobApplication.update({
+      where: { id: application.id },
+      data: { status: 'ACCEPTED' }
+    });
+
+    console.log(`[CAREERS] Offer successfully ACCEPTED for ${application.fullName}`);
+    res.json({ success: true, application: updated });
+  } catch (error) {
+    console.error('POST /careers/confirm-offer error:', error);
+    res.status(500).json({ error: 'Failed to confirm offer: ' + error.message });
+  }
+});
 
 // Multer error handler
 router.use((err, req, res, next) => {
