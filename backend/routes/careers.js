@@ -821,8 +821,11 @@ router.post(
 
         const W = doc.page.width;
         const H = doc.page.height;
-        const M = 50; // margin
+        const M = 40; // reduced margin from 50 to 40 to save space
         const CW = W - M * 2; // content width
+
+        // Explicit white background
+        doc.rect(0, 0, W, H).fill('white');
 
         // ═══ GEOMETRIC BORDER DECORATIONS ═══
         // Top-left
@@ -867,119 +870,121 @@ router.post(
         doc.restore();
         doc.rect(W - 140, H - 40, 40, 40).fill('#0891b2');
 
-        let y = 80; // Start lower to avoid top border decorations
+        let y = 70; // Start even lower but save space
 
         // ═══ HEADER ═══
         if (logoBuffer) {
-          doc.image(logoBuffer, M, y, { height: 32 });
+          doc.image(logoBuffer, M, y, { height: 28 });
         }
-        doc.fontSize(10).fillColor('#666').text('www.primecode.in', M, y + 4, { width: CW, align: 'right' });
-        doc.fontSize(8).fillColor('#aaa').text('Welcome to the future of tech.', M, y + 16, { width: CW, align: 'right' });
-        y += 55;
+        doc.fontSize(10).fillColor('#666').text('www.primecode.in', M, y + 2, { width: CW, align: 'right' });
+        doc.fontSize(8).fillColor('#aaa').text('Welcome to the future of tech.', M, y + 14, { width: CW, align: 'right' });
+        y += 40;
 
         // ═══ TITLE ═══
-        doc.fontSize(26).fillColor('#1a1a2e').font('Helvetica-Bold').text('OFFER OF EMPLOYMENT', M, y);
-        y += 35;
-        // Underline
-        doc.moveTo(M, y).lineTo(M + 220, y).lineWidth(3).strokeColor('#0891b2').stroke();
+        doc.fontSize(22).fillColor('#1a1a2e').font('Helvetica-Bold').text('OFFER OF EMPLOYMENT', M, y, { width: CW, align: 'center' });
+        y += 24;
+        // Centered Underline
+        const underlineW = 220;
+        doc.moveTo(M + (CW - underlineW) / 2, y).lineTo(M + (CW + underlineW) / 2, y).lineWidth(3).strokeColor('#0891b2').stroke();
         y += 14;
 
         // Candidate info
-        doc.fontSize(12).fillColor('#444').font('Helvetica').text(`[${application.fullName}]`, M, y);
-        y += 18;
-        doc.fontSize(11).fillColor('#888').text(`[Date: ${today}]`, M, y);
-        y += 28;
+        doc.fontSize(11).fillColor('#444').font('Helvetica').text(`[${application.fullName}]`, M, y);
+        y += 14;
+        doc.fontSize(10).fillColor('#888').text(`[Date: ${today}]`, M, y);
+        y += 20;
 
         // ═══ GREETING ═══
-        doc.fontSize(12).fillColor('#333').font('Helvetica');
+        doc.fontSize(11).fillColor('#333').font('Helvetica');
         doc.text('Dear ', M, y, { continued: true });
         doc.font('Helvetica-Bold').fillColor('#0891b2').text(application.fullName, { continued: true });
         doc.font('Helvetica').fillColor('#333').text(',');
-        y += 22;
-        doc.fontSize(11).fillColor('#444').text(
+        y += 16;
+        doc.fontSize(10).fillColor('#444').text(
           'Congratulations! We are thrilled to formally offer you the position of ' +
           (application.jobTitle || 'the open position') +
           ' at PrimeCode Solutions. We are impressed by your skills and potential, and we are confident you will be a vital asset to our team.',
-          M, y, { width: CW, lineGap: 3 }
+          M, y, { width: CW, lineGap: 2 }
         );
-        y = doc.y + 20;
+        y = doc.y + 14;
 
         // ═══ ROLE OVERVIEW ═══
-        doc.fontSize(13).fillColor('#0891b2').font('Helvetica-Bold').text('ROLE OVERVIEW:', M, y);
-        y += 20;
+        doc.fontSize(11).fillColor('#0891b2').font('Helvetica-Bold').text('ROLE OVERVIEW:', M, y);
+        y += 14;
         // Card background
-        doc.roundedRect(M, y, CW, 70, 8).fillAndStroke('#f0f9ff', '#bae6fd');
-        const roleY = y + 12;
-        doc.fontSize(10).fillColor('#666').font('Helvetica-Bold');
+        doc.roundedRect(M, y, CW, 50, 8).fillAndStroke('#f0f9ff', '#bae6fd');
+        const roleY = y + 10;
+        doc.fontSize(9).fillColor('#666').font('Helvetica-Bold');
         doc.text('Department:', M + 16, roleY);
-        doc.fillColor('#1a1a2e').text(application.department || 'Engineering', M + 120, roleY);
-        doc.fillColor('#666').text('Report To:', M + 16, roleY + 20);
-        doc.fillColor('#1a1a2e').text(reportTo || 'Team Lead', M + 120, roleY + 20);
-        doc.fillColor('#666').text('Start Date:', M + 16, roleY + 40);
-        doc.fillColor('#1a1a2e').text(formattedStartDate, M + 120, roleY + 40);
-        y += 82;
+        doc.fillColor('#1a1a2e').text(application.department || 'Engineering', M + 100, roleY);
+        doc.fillColor('#666').text('Report To:', M + 16, roleY + 16);
+        doc.fillColor('#1a1a2e').text(reportTo || 'Team Lead', M + 100, roleY + 16);
+        doc.fillColor('#666').text('Start Date:', CW / 2 + 20, roleY);
+        doc.fillColor('#1a1a2e').text(formattedStartDate, CW / 2 + 80, roleY);
+        y += 62;
 
         // ═══ COMPENSATION ═══
-        doc.fontSize(13).fillColor('#7c3aed').font('Helvetica-Bold').text('COMPENSATION & BENEFITS:', M, y);
-        y += 20;
-        doc.roundedRect(M, y, CW, 45, 8).fillAndStroke('#faf5ff', '#e9d5ff');
-        doc.fontSize(10).fillColor('#333').font('Helvetica');
-        doc.text('Base Salary: ', M + 16, y + 14, { continued: true });
+        doc.fontSize(11).fillColor('#7c3aed').font('Helvetica-Bold').text('COMPENSATION & BENEFITS:', M, y);
+        y += 14;
+        doc.roundedRect(M, y, CW, 38, 8).fillAndStroke('#faf5ff', '#e9d5ff');
+        doc.fontSize(9).fillColor('#333').font('Helvetica');
+        doc.text('Base Salary: ', M + 16, y + 10, { continued: true });
         doc.font('Helvetica-Bold').fillColor('#0891b2').text(salary, { continued: true });
         doc.font('Helvetica').fillColor('#333').text(' per year, paid monthly.');
-        doc.fontSize(9).fillColor('#666').text('Eligible for annual performance bonus of up to 15% of CTC.', M + 16, y + 30);
-        y += 58;
+        doc.fontSize(8).fillColor('#666').text('Eligible for annual performance bonus of up to 15% of CTC.', M + 16, y + 24);
+        y += 48;
 
         // ═══ KEY PERKS ═══
-        doc.fontSize(13).fillColor('#b45309').font('Helvetica-Bold').text('KEY PERKS:', M, y);
-        y += 20;
+        doc.fontSize(11).fillColor('#b45309').font('Helvetica-Bold').text('KEY PERKS:', M, y);
+        y += 14;
         const perks = [
           { icon: '·', label: 'Flexible / Hybrid\\nWork' },
           { icon: '·', label: 'Health &\\nWellness' },
           { icon: '·', label: 'Continuous\\nLearning Fund' },
           { icon: '·', label: 'Career Growth\\nOpportunities' }
         ];
-        const perkW = (CW - 30) / 4;
+        const perkW = (CW - 24) / 4;
         perks.forEach((p, i) => {
-          const px = M + i * (perkW + 10);
-          doc.roundedRect(px, y, perkW, 45, 6).fillAndStroke('#f0fdfa', '#ccfbf1');
-          doc.fontSize(18).fillColor('#0891b2').text(p.icon, px, y + 6, { width: perkW, align: 'center' });
-          doc.fontSize(8).fillColor('#444').font('Helvetica-Bold').text(
-            p.label.replace('\\n', '\n'), px + 4, y + 20, { width: perkW - 8, align: 'center', lineGap: 1 }
+          const px = M + i * (perkW + 8);
+          doc.roundedRect(px, y, perkW, 35, 6).fillAndStroke('#f0fdfa', '#ccfbf1');
+          doc.fontSize(14).fillColor('#0891b2').text(p.icon, px, y + 4, { width: perkW, align: 'center' });
+          doc.fontSize(7).fillColor('#444').font('Helvetica-Bold').text(
+            p.label.replace('\\n', ' '), px + 2, y + 16, { width: perkW - 4, align: 'center', lineGap: 1 }
           );
         });
-        y += 58;
+        y += 45;
 
         // ═══ TERMS ═══
-        doc.fontSize(13).fillColor('#1a1a2e').font('Helvetica-Bold').text('TERMS:', M, y);
-        y += 18;
-        doc.roundedRect(M, y, CW, 50, 6).fillAndStroke('#f8fafc', '#e2e8f0');
-        doc.fontSize(9).fillColor('#555').font('Helvetica').text(termsText, M + 14, y + 10, { width: CW - 28, lineGap: 2 });
-        y = Math.max(doc.y + 14, y + 56);
+        doc.fontSize(11).fillColor('#1a1a2e').font('Helvetica-Bold').text('TERMS:', M, y);
+        y += 14;
+        doc.roundedRect(M, y, CW, 35, 6).fillAndStroke('#f8fafc', '#e2e8f0');
+        doc.fontSize(8).fillColor('#555').font('Helvetica').text(termsText, M + 14, y + 8, { width: CW - 28, lineGap: 1 });
+        y = Math.max(doc.y + 12, y + 42);
 
         // ═══ ACCEPTANCE ═══
-        const halfW = (CW - 30) / 2;
-        doc.fontSize(10).fillColor('#1a1a2e').font('Helvetica-Bold');
+        doc.fontSize(9).fillColor('#1a1a2e').font('Helvetica-Bold');
         doc.text('ACCEPTANCE:', M, y);
-        doc.text('PRIMECODE SOLUTIONS:', M + halfW + 30, y);
         y += 18;
+        
+        const rightAlign = W - M - 140; // Pin to the far right
+
         // Signature lines
-        doc.moveTo(M, y + 30).lineTo(M + halfW, y + 30).lineWidth(0.5).strokeColor('#cbd5e1').stroke();
-        doc.moveTo(M + halfW + 30, y + 30).lineTo(W - M, y + 30).lineWidth(0.5).stroke();
+        doc.moveTo(M, y + 30).lineTo(M + 140, y + 30).lineWidth(0.5).strokeColor('#cbd5e1').stroke();
+        doc.moveTo(rightAlign, y + 30).lineTo(W - M, y + 30).lineWidth(0.5).stroke();
         
         // Owner signature image
         if (signatureBuffer) {
-          doc.image(signatureBuffer, M + halfW + 30, y - 10, { height: 34 });
+          doc.image(signatureBuffer, rightAlign + 10, y - 10, { height: 34 });
         }
         y += 34;
-        doc.fontSize(9).fillColor('#888').font('Helvetica');
+        doc.fontSize(8).fillColor('#888').font('Helvetica');
         doc.text('Candidate Signature', M, y);
-        doc.font('Helvetica-Bold').fillColor('#1a1a2e').text('Balichak Suman', M + halfW + 30, y);
-        y += 14;
+        doc.font('Helvetica-Bold').fillColor('#1a1a2e').text('Balichak Suman', rightAlign, y, { width: 140, align: 'center' });
+        y += 12;
         doc.font('Helvetica').fillColor('#888');
         doc.text('Date, Print Name', M, y);
-        doc.text('Founder & CEO', M + halfW + 30, y);
-        y += 30;
+        doc.text('Founder & CEO', rightAlign, y, { width: 140, align: 'center' });
+        y += 24;
 
         // ═══ FOOTER ═══
         doc.moveTo(M, y).lineTo(W - M, y).lineWidth(1).strokeColor('#e2e8f0').stroke();
