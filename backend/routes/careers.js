@@ -886,31 +886,31 @@ router.post(
         // Centered Underline
         const underlineW = 220;
         doc.moveTo(M + (CW - underlineW) / 2, y).lineTo(M + (CW + underlineW) / 2, y).lineWidth(3).strokeColor('#0891b2').stroke();
-        y += 14;
+        y += 35; // increased gap
 
         // Candidate info
         doc.fontSize(11).fillColor('#444').font('Helvetica').text(`[${application.fullName}]`, M, y);
-        y += 14;
+        y += 16;
         doc.fontSize(10).fillColor('#888').text(`[Date: ${today}]`, M, y);
-        y += 20;
+        y += 35; // increased gap
 
         // ═══ GREETING ═══
         doc.fontSize(11).fillColor('#333').font('Helvetica');
         doc.text('Dear ', M, y, { continued: true });
         doc.font('Helvetica-Bold').fillColor('#0891b2').text(application.fullName, { continued: true });
         doc.font('Helvetica').fillColor('#333').text(',');
-        y += 16;
+        y += 20;
         doc.fontSize(10).fillColor('#444').text(
           'Congratulations! We are thrilled to formally offer you the position of ' +
           (application.jobTitle || 'the open position') +
           ' at PrimeCode Solutions. We are impressed by your skills and potential, and we are confident you will be a vital asset to our team.',
-          M, y, { width: CW, lineGap: 2 }
+          M, y, { width: CW, lineGap: 3 }
         );
-        y = doc.y + 14;
+        y = doc.y + 30; // increased gap
 
         // ═══ ROLE OVERVIEW ═══
         doc.fontSize(11).fillColor('#0891b2').font('Helvetica-Bold').text('ROLE OVERVIEW:', M, y);
-        y += 14;
+        y += 16;
         // Card background
         doc.roundedRect(M, y, CW, 50, 8).fillAndStroke('#f0f9ff', '#bae6fd');
         const roleY = y + 10;
@@ -921,22 +921,22 @@ router.post(
         doc.fillColor('#1a1a2e').text(reportTo || 'Team Lead', M + 100, roleY + 16);
         doc.fillColor('#666').text('Start Date:', CW / 2 + 20, roleY);
         doc.fillColor('#1a1a2e').text(formattedStartDate, CW / 2 + 80, roleY);
-        y += 62;
+        y += 75; // increased gap
 
         // ═══ COMPENSATION ═══
         doc.fontSize(11).fillColor('#7c3aed').font('Helvetica-Bold').text('COMPENSATION & BENEFITS:', M, y);
-        y += 14;
+        y += 16;
         doc.roundedRect(M, y, CW, 38, 8).fillAndStroke('#faf5ff', '#e9d5ff');
         doc.fontSize(9).fillColor('#333').font('Helvetica');
         doc.text('Base Salary: ', M + 16, y + 10, { continued: true });
         doc.font('Helvetica-Bold').fillColor('#0891b2').text(salary, { continued: true });
         doc.font('Helvetica').fillColor('#333').text(' per year, paid monthly.');
         doc.fontSize(8).fillColor('#666').text('Eligible for annual performance bonus of up to 15% of CTC.', M + 16, y + 24);
-        y += 48;
+        y += 60; // increased gap
 
         // ═══ KEY PERKS ═══
         doc.fontSize(11).fillColor('#b45309').font('Helvetica-Bold').text('KEY PERKS:', M, y);
-        y += 14;
+        y += 16;
         const perks = [
           { icon: '·', label: 'Flexible / Hybrid\\nWork' },
           { icon: '·', label: 'Health &\\nWellness' },
@@ -952,31 +952,31 @@ router.post(
             p.label.replace('\\n', ' '), px + 2, y + 16, { width: perkW - 4, align: 'center', lineGap: 1 }
           );
         });
-        y += 45;
+        y += 60; // increased gap
 
         // ═══ TERMS ═══
         doc.fontSize(11).fillColor('#1a1a2e').font('Helvetica-Bold').text('TERMS:', M, y);
-        y += 14;
+        y += 16;
         doc.roundedRect(M, y, CW, 35, 6).fillAndStroke('#f8fafc', '#e2e8f0');
         doc.fontSize(8).fillColor('#555').font('Helvetica').text(termsText, M + 14, y + 8, { width: CW - 28, lineGap: 1 });
-        y = Math.max(doc.y + 12, y + 42);
+        y = Math.max(doc.y + 20, y + 54); // increased gap
 
         // ═══ ACCEPTANCE ═══
         doc.fontSize(9).fillColor('#1a1a2e').font('Helvetica-Bold');
         doc.text('ACCEPTANCE:', M, y);
-        y += 18;
+        y += 20; // drop signature line lower
         
         const rightAlign = W - M - 140; // Pin to the far right
 
         // Signature lines
-        doc.moveTo(M, y + 30).lineTo(M + 140, y + 30).lineWidth(0.5).strokeColor('#cbd5e1').stroke();
-        doc.moveTo(rightAlign, y + 30).lineTo(W - M, y + 30).lineWidth(0.5).stroke();
+        doc.moveTo(M, y + 36).lineTo(M + 140, y + 36).lineWidth(0.5).strokeColor('#cbd5e1').stroke();
+        doc.moveTo(rightAlign, y + 36).lineTo(W - M, y + 36).lineWidth(0.5).stroke();
         
         // Owner signature image
         if (signatureBuffer) {
-          doc.image(signatureBuffer, rightAlign + 10, y - 10, { height: 34 });
+          doc.image(signatureBuffer, rightAlign + 10, y - 8, { height: 42 });
         }
-        y += 34;
+        y += 44;
         doc.fontSize(8).fillColor('#888').font('Helvetica');
         doc.text('Candidate Signature', M, y);
         doc.font('Helvetica-Bold').fillColor('#1a1a2e').text('Balichak Suman', rightAlign, y, { width: 140, align: 'center' });
@@ -984,17 +984,15 @@ router.post(
         doc.font('Helvetica').fillColor('#888');
         doc.text('Date, Print Name', M, y);
         doc.text('Founder & CEO', rightAlign, y, { width: 140, align: 'center' });
-        y += 24;
 
         // ═══ FOOTER ═══
-        doc.moveTo(M, y).lineTo(W - M, y).lineWidth(1).strokeColor('#e2e8f0').stroke();
-        y += 12;
+        const footerY = H - 80; // Absolute pin to the bottom edge of A4
+        doc.moveTo(M, footerY).lineTo(W - M, footerY).lineWidth(1).strokeColor('#e2e8f0').stroke();
         if (logoBuffer) {
-          doc.image(logoBuffer, M, y, { height: 20 });
+          doc.image(logoBuffer, M, footerY + 14, { height: 22 });
         }
-        doc.fontSize(9).fillColor('#888').text('www.primecode.in', M, y + 26);
-
-        doc.fontSize(9).fillColor('#888').font('Helvetica-Oblique').text('Welcome to the future of tech.', M, y, { width: CW, align: 'right' });
+        doc.fontSize(9).fillColor('#888').font('Helvetica-Oblique').text('Welcome to the future of tech.', M, footerY + 28, { width: CW, align: 'right' });
+        doc.font('Helvetica').text('www.primecode.in', M, footerY + 28, { width: CW, align: 'center' });
 
         doc.end();
       });
