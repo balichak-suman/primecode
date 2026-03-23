@@ -439,7 +439,9 @@ export default function App() {
           {/* Overlays - BOTTOM RIGHT CTA */}
           <div className="hero-bottom-right">
             <h2 className="impact-text">GLOBAL IMPACT.<br />UNCOMPROMISING SECURITY.</h2>
-            <button className="cta-button">Request Consultation</button>
+            <a href="https://wa.me/8500988297?text=Hi" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <button className="cta-button">Request Consultation</button>
+            </a>
           </div>
 
 
