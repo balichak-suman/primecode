@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import api from '../config/api';
+import axios from 'axios';
+import { API_URL } from '../config/api';
 import logoPng from '../assets/logo.png';
 import '../index.css';
 
@@ -26,7 +27,7 @@ export default function AcceptOffer() {
     setErrorMessage('');
 
     try {
-      const response = await api.post('/careers/confirm-offer', { token });
+      const response = await axios.post(`${API_URL}/careers/confirm-offer`, { token });
       if (response.data.success) {
         setStatus('success');
       }
