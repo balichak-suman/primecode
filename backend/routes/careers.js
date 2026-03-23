@@ -1288,8 +1288,6 @@ router.post('/confirm-offer', async (req, res) => {
     const pdfBase64 = pdfBuffer.toString('base64');
 
     // ═══ SEND COMPLETION EMAIL TO ALL PARTIES ═══
-    const hrEmails = ['prime.code@yahoo.com', 'balichaksumann@gmail.com'];
-    
     const emailSubject = `Countersigned Offer Letter – ${application.fullName}`;
     const emailBody = `
       <div style="font-family:'Segoe UI',sans-serif; max-width:650px; margin:0 auto; background:#fff; border-radius:12px; border:1px solid #e2e8f0;">
@@ -1307,13 +1305,14 @@ router.post('/confirm-offer', async (req, res) => {
       </div>
     `;
 
-    // To Candidate (cc HR)
+    // To Candidate (cc HR Official, bcc Founder)
     await axios.post(
       'https://api.brevo.com/v3/smtp/email',
       {
         sender: { name: 'PrimeCode Onboarding', email: process.env.SENDER_EMAIL || 'careers@primecode.in' },
         to: [{ email: application.email, name: application.fullName }],
-        cc: hrEmails.map(email => ({ email })),
+        cc: [{ email: 'prime.code@yahoo.com' }],
+        bcc: [{ email: 'balichaksumann@gmail.com' }],
         subject: emailSubject,
         htmlContent: emailBody,
         attachment: [{
