@@ -490,6 +490,7 @@ enum ApplicationStatus {
   INTERVIEW
   INTERVIEWED
   OFFERED
+  ACCEPTED
   REJECTED
   WITHDRAWN
 }
