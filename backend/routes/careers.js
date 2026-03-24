@@ -189,6 +189,21 @@ router.post('/apply',
         return res.status(404).json({ error: 'Job posting not found or no longer active' });
       }
 
+      // Check for duplicate application (prevent spam)
+      const existingApplication = await prisma.jobApplication.findFirst({
+        where: {
+          jobId: parsedJobId,
+          OR: [
+            { email: email.trim().toLowerCase() },
+            { phone: phone.trim() }
+          ]
+        }
+      });
+
+      if (existingApplication) {
+        return res.status(400).json({ error: 'You have already applied for this position with this email or phone number.' });
+      }
+
       // Build resume info
       const resumeUrl = req.file ? `/uploads/resumes/${req.file.filename}` : null;
       const resumeOriginalName = req.file ? req.file.originalname : null;
