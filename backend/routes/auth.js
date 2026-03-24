@@ -142,20 +142,22 @@ router.post('/forgot-password', async (req, res) => {
             to: email,
             subject: 'PrimeCode - Password Reset OTP',
             html: `
-              <div style="font-family:'Segoe UI',Roboto,sans-serif; max-width:500px; margin:0 auto; background:#fff; border-radius:12px; overflow:hidden; border:1px solid #e2e8f0;">
-                <div style="padding:20px 30px; border-bottom:1px solid #e2e8f0; text-align:center; background:#f8fafc;">
+              <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; max-width:500px; margin:0 auto; background:#0a0a0a; border-radius:12px; overflow:hidden; border:1px solid rgba(0,210,255,0.15);">
+                <div style="padding:20px 30px; border-bottom:1px solid rgba(0,210,255,0.1); text-align:center; background:linear-gradient(135deg, rgba(0,210,255,0.06), rgba(121,40,202,0.06));">
                   <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:36px;" />
                 </div>
-                <div style="padding:30px; text-align:center;">
-                  <h2 style="color:#1a1a2e; margin:0 0 12px;">Password Reset</h2>
-                  <p style="color:#555; font-size:14px; line-height:1.6;">Your one-time password (OTP) is:</p>
-                  <div style="display:inline-block; background:linear-gradient(135deg, #0891b2, #7c3aed); color:#fff; font-size:32px; font-weight:800; letter-spacing:8px; padding:16px 32px; border-radius:12px; margin:16px 0;">${otp}</div>
-                  <p style="color:#888; font-size:13px;">This OTP will expire in <strong>15 minutes</strong>.</p>
-                  <p style="color:#aaa; font-size:12px; margin-top:20px;">If you didn't request this, please ignore this email.</p>
+                <div style="padding:30px; text-align:center; color:#e2e8f0;">
+                  <h2 style="color:#00D2FF; margin:0 0 12px;">Password Reset</h2>
+                  <p style="color:#aaa; font-size:14px; line-height:1.6;">Your one-time password (OTP) is:</p>
+                  <div style="display:inline-block; background:linear-gradient(135deg, #0891b2, #7c3aed); color:#fff; font-size:32px; font-weight:800; letter-spacing:8px; padding:16px 32px; border-radius:12px; margin:16px 0; box-shadow:0 4px 15px rgba(124, 58, 237, 0.3);">
+                    ${otp}
+                  </div>
+                  <p style="color:rgba(255,255,255,0.7); font-size:13px;">This OTP will expire in <strong style="color:#fff;">15 minutes</strong>.</p>
+                  <p style="color:rgba(255,255,255,0.4); font-size:12px; margin-top:20px;">If you didn't request this, please ignore this email.</p>
                 </div>
-                <div style="padding:14px 30px; border-top:1px solid #e2e8f0; text-align:center; background:#f8fafc;">
-                  <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:18px; opacity:0.5; margin-bottom:4px;" />
-                  <p style="margin:0; color:#999; font-size:10px;">&copy; ${new Date().getFullYear()} PrimeCode Solutions. All rights reserved.</p>
+                <div style="padding:16px 30px; border-top:1px solid rgba(255,255,255,0.06); text-align:center; background:rgba(0,0,0,0.3);">
+                  <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:20px; opacity:0.5; margin-bottom:6px;" />
+                  <p style="margin:4px 0 0; color:rgba(255,255,255,0.15); font-size:10px;">&copy; ${new Date().getFullYear()} PrimeCode Solutions. All rights reserved.</p>
                 </div>
               </div>
             `

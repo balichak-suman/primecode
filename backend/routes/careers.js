@@ -1030,26 +1030,26 @@ router.post(
       // ═══ SEND EMAIL WITH PDF ATTACHMENT VIA BREVO ═══
       const emailSubject = `Offer of Employment – ${application.jobTitle || 'Open Position'} at PrimeCode Solutions`;
       const emailBody = `
-        <div style="font-family:'Segoe UI',sans-serif; max-width:650px; margin:0 auto; background:#fff; border-radius:12px; overflow:hidden; border:1px solid #e2e8f0;">
-          <div style="padding:20px 30px; border-bottom:1px solid #e2e8f0; text-align:center; background:#f8fafc;">
+        <div style="font-family:'Segoe UI',sans-serif; max-width:650px; margin:0 auto; background:#0a0a0a; border-radius:12px; overflow:hidden; border:1px solid rgba(0,210,255,0.15);">
+          <div style="padding:20px 30px; border-bottom:1px solid rgba(0,210,255,0.1); text-align:center; background:linear-gradient(135deg, rgba(0,210,255,0.06), rgba(121,40,202,0.06));">
             <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:36px;" />
           </div>
-          <div style="padding:24px 30px; color:#333;">
-            <p>Dear <strong>${application.fullName}</strong>,</p>
-            <p>Please find attached your official <strong>Offer of Employment</strong> from PrimeCode Solutions for the position of <strong>${application.jobTitle || 'the open position'}</strong>.</p>
+          <div style="padding:24px 30px; color:#e2e8f0; font-size:15px; line-height:1.6;">
+            <p style="color:#fff;">Dear <strong>${application.fullName}</strong>,</p>
+            <p>Please find attached your official <strong>Offer of Employment</strong> from PrimeCode Solutions for the position of <strong style="color:#00D2FF;">${application.jobTitle || 'the open position'}</strong>.</p>
             <p>We are excited to welcome you to our team! Please review the attached offer letter carefully and reach out if you have any questions.</p>
             <div style="text-align:center; padding: 35px 0 25px 0;">
               <a href="${acceptLink}" style="background:linear-gradient(135deg, #0891b2, #7c3aed); color:#fff; text-decoration:none; padding:16px 32px; border-radius:8px; font-weight:bold; font-size:16px; display:inline-block; box-shadow:0 4px 15px rgba(124, 58, 237, 0.3);">
                 Sign & Accept Offer
               </a>
-              <p style="font-size:12px; color:#888; margin-top:12px;">This secure link expires in 7 days.</p>
+              <p style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:12px;">This secure link expires in 7 days.</p>
             </div>
             <br/>
-            <p>Best regards,<br/><strong>Balichak Suman</strong><br/>Founder & CEO, PrimeCode Solutions<br/>www.primecode.in</p>
+            <p>Best regards,<br/><strong style="color:#fff;">Balichak Suman</strong><br/>Founder & CEO, PrimeCode Solutions<br/><a href="https://primecode.in" style="color:#00D2FF; text-decoration:none;">www.primecode.in</a></p>
           </div>
-          <div style="padding:14px 30px; border-top:1px solid #e2e8f0; text-align:center; background:#f8fafc;">
+          <div style="padding:14px 30px; border-top:1px solid rgba(255,255,255,0.06); text-align:center; background:rgba(0,0,0,0.3);">
             <img src="https://primecode.in/logo.png" alt="PrimeCode" style="height:18px; opacity:0.5; margin-bottom:4px;" />
-            <p style="margin:0; color:#999; font-size:10px;">© ${new Date().getFullYear()} PrimeCode Solutions. All rights reserved.</p>
+            <p style="margin:0; color:rgba(255,255,255,0.25); font-size:10px;">© ${new Date().getFullYear()} PrimeCode Solutions. All rights reserved.</p>
           </div>
         </div>
       `;
@@ -1305,17 +1305,17 @@ router.post('/confirm-offer', async (req, res) => {
     // ═══ SEND COMPLETION EMAIL TO ALL PARTIES ═══
     const emailSubject = `Countersigned Offer Letter – ${application.fullName}`;
     const emailBody = `
-      <div style="font-family:'Segoe UI',sans-serif; max-width:650px; margin:0 auto; background:#fff; border-radius:12px; border:1px solid #e2e8f0;">
-        <div style="padding:20px 30px; text-align:center; background:#f8fafc; border-bottom:1px solid #e2e8f0;">
-          <h2 style="color:#0891b2; margin:0;">Offer Accepted! 🎉</h2>
+      <div style="font-family:'Segoe UI',sans-serif; max-width:650px; margin:0 auto; background:#0a0a0a; border-radius:12px; border:1px solid rgba(0,210,255,0.15); overflow:hidden;">
+        <div style="padding:20px 30px; border-bottom:1px solid rgba(0,210,255,0.1); text-align:center; background:linear-gradient(135deg, rgba(0,210,255,0.06), rgba(121,40,202,0.06));">
+          <h2 style="color:#00D2FF; margin:0;">Offer Accepted! 🎉</h2>
         </div>
-        <div style="padding:24px 30px; color:#333;">
-          <p>Dear <strong>${application.fullName}</strong>,</p>
-          <p>Thank you for officially accepting the offer for the <strong>${application.jobTitle || 'Open Position'}</strong> role at PrimeCode Solutions!</p>
+        <div style="padding:24px 30px; color:#e2e8f0; font-size:15px; line-height:1.6;">
+          <p style="color:#fff;">Dear <strong>${application.fullName}</strong>,</p>
+          <p>Thank you for officially accepting the offer for the <strong style="color:#00D2FF;">${application.jobTitle || 'Open Position'}</strong> role at PrimeCode Solutions!</p>
           <p>Your electronically signed Offer Letter has been successfully recorded. A fully finalized and countersigned PDF is attached to this email for your permanent records.</p>
           <p>Our HR team is CC'd here and will be in touch shortly regarding your onboarding process and schedule.</p>
           <br/>
-          <p>Welcome aboard!<br/><strong>PrimeCode HR Team</strong></p>
+          <p>Welcome aboard!<br/><strong style="color:#fff;">PrimeCode HR Team</strong><br/><a href="https://primecode.in" style="color:#00D2FF; text-decoration:none;">www.primecode.in</a></p>
         </div>
       </div>
     `;
