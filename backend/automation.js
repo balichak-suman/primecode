@@ -8,6 +8,7 @@ let automationConfig = {
   dailyBirthdayNotify: true,
   dailyAnniversaryNotify: true,
   dailyProbationCheck: true,
+  databaseKeepAlive: true,
   weeklyAttendanceSummary: true,
   weeklyPendingReminder: true,
   monthlyLeaveReset: false,
@@ -61,6 +62,13 @@ cron.schedule('0 1 1 * *', async () => {
     if (automationConfig.monthlyArchiveNotifications) await archiveOldNotifications();
     if (automationConfig.monthlyLeaveBalanceSummary) await sendLeaveBalanceSummary();
   } catch (err) { console.error('[CRON] Monthly job error:', err); }
+});
+
+cron.schedule('0 */4 * * *', async () => {
+  console.log('[CRON] Running database keep-alive...');
+  try {
+    if (automationConfig.databaseKeepAlive) await databaseKeepAlive();
+  } catch (err) { console.error('[CRON] Keep-alive error:', err); }
 });
 
 // ═══ ALERT CHECK (runs every 6 hours) ═══
@@ -288,6 +296,15 @@ async function checkLowLeaveBalance() {
   console.log(`[CRON] Sent ${alertCount} low leave balance alerts.`);
 }
 
+async function databaseKeepAlive() {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    console.log('[CRON] Database keep-alive successful.');
+  } catch (err) {
+    console.error('[CRON] Database keep-alive failed:', err);
+  }
+}
+
 // ─── Manual Trigger (for testing) ───
 export async function runJobManually(jobName) {
   const jobs = {
@@ -299,6 +316,7 @@ export async function runJobManually(jobName) {
     archiveNotifications: archiveOldNotifications,
     leaveBalanceSummary: sendLeaveBalanceSummary,
     lowLeaveBalance: checkLowLeaveBalance,
+    databaseKeepAlive: databaseKeepAlive,
   };
   if (jobs[jobName]) {
     await jobs[jobName]();

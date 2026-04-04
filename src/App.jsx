@@ -379,9 +379,9 @@ export default function App() {
               {link}
             </a>
           ))}
-          <a 
-            href="/login" 
-            className="btn-glow" 
+          <a
+            href="/login"
+            className="btn-glow"
             style={{ margin: '1rem auto 0', width: 'fit-content', textDecoration: 'none', padding: '10px 30px', fontSize: '1.1rem' }}
           >
             Login
